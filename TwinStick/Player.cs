@@ -29,9 +29,17 @@ namespace TwinStick
             }   
         }
 
-        public Player(Texture2D texture, Vector2 position) : base(texture, position)
+        public Player(Texture2D texture, Vector2 position) 
+            : base(texture, position)
         {
 
+            direction = new Vector2(0, 0);
+            speed = 175f;
+        }
+
+        public Player(Texture2D texture)
+            : base(texture)
+        {
             direction = new Vector2(0, 0);
             speed = 175f;
         }

@@ -37,6 +37,12 @@ namespace TwinStick
             speed = 35f;
         }
 
+        public Zombie(Texture2D texture)
+            : base(texture)
+        {
+            speed = 35;
+        }
+
         public void Update(GameTime time, TileMap map, Vector2 playerPosition)
         {
             float elapsed = (float)time.ElapsedGameTime.TotalSeconds;

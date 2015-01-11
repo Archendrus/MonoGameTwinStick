@@ -35,14 +35,14 @@ namespace TwinStick
             graphics = new GraphicsDeviceManager(this);
 
 
-            //graphics.PreferredBackBufferWidth = 864;
-            //graphics.PreferredBackBufferHeight = 480;
+            graphics.PreferredBackBufferWidth = 864;
+            graphics.PreferredBackBufferHeight = 480;
             //graphics.PreferredBackBufferWidth = 1280;
             //graphics.PreferredBackBufferHeight = 720;
-            graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            //graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            //graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             // Make fullscreen
-            Window.IsBorderless = true;
+            Window.IsBorderless = false;
             IsFixedTimeStep = false;
             graphics.ApplyChanges();
 
@@ -64,6 +64,8 @@ namespace TwinStick
             // Create screen rectangle at size of user's desktop resolution
             screenRectangle = new Rectangle(
                 0, 0, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight);
+
+            
 
             // Create a 2x scale
             Scale = new Vector2(2, 2);
@@ -89,13 +91,15 @@ namespace TwinStick
             tileMap = new TileMap(temp);
             temp = Content.Load<Texture2D>("hero");
 
-            player = new Player(temp, new Vector2((VirtualWidth / 2) - ((temp.Width * Scale.X) / 2),
-                                                  (VirtualHeight / 2) - ((temp.Width * Scale.Y) /2)));
+            player = new Player(temp);
+            player.Position = new Vector2((VirtualWidth / 2) - (player.Width / 2), (VirtualHeight / 2) - (player.Height / 2));
             temp = Content.Load<Texture2D>("zombie");
             enemies = new List<Sprite>();
             for (int i = 0; i < 7; i++)
             {
-                zombie = new Zombie(temp, new Vector2((i + 1) * 75, (i + 1) * 100));
+                zombie = new Zombie(temp);
+                zombie.Position = new Vector2((VirtualWidth / 2) - (zombie.Width / 2), -(i * 50) - zombie.Height);
+                
                 enemies.Add(zombie);
             }   
         }

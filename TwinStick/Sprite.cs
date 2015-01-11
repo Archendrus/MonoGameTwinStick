@@ -35,6 +35,14 @@ namespace TwinStick
             
         }
 
+        public Sprite(Texture2D texture)
+        {
+            this.texture = texture;
+            Position = Vector2.Zero;
+            Width = texture.Width * (int)Game1.Scale.X;
+            Height = texture.Height * (int)Game1.Scale.Y;
+        }
+
         public virtual void Draw(SpriteBatch spriteBatch)
         {
             spriteBatch.Draw(
