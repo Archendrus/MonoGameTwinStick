@@ -35,14 +35,14 @@ namespace TwinStick
             graphics = new GraphicsDeviceManager(this);
 
 
-            graphics.PreferredBackBufferWidth = 864;
-            graphics.PreferredBackBufferHeight = 480;
+            //graphics.PreferredBackBufferWidth = 864;
+            //graphics.PreferredBackBufferHeight = 480;
             //graphics.PreferredBackBufferWidth = 1280;
             //graphics.PreferredBackBufferHeight = 720;
-            //graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            //graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             // Make fullscreen
-            Window.IsBorderless = false;
+            Window.IsBorderless = true;
             IsFixedTimeStep = false;
             graphics.ApplyChanges();
 
@@ -95,11 +95,10 @@ namespace TwinStick
             player.Position = new Vector2((VirtualWidth / 2) - (player.Width / 2), (VirtualHeight / 2) - (player.Height / 2));
             temp = Content.Load<Texture2D>("zombie");
             enemies = new List<Sprite>();
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < 20; i++)
             {
                 zombie = new Zombie(temp);
-                zombie.Position = new Vector2((VirtualWidth / 2) - (zombie.Width / 2), -(i * 50) - zombie.Height);
-                
+                zombie.Position = new Vector2((VirtualWidth / 2) - (zombie.Width / 2), -(i * 50) - zombie.Height);                
                 enemies.Add(zombie);
             }   
         }
@@ -146,9 +145,7 @@ namespace TwinStick
             // Set Render to 432X240 render target
             GraphicsDevice.SetRenderTarget(renderTarget);
             GraphicsDevice.Clear(Color.CornflowerBlue);
-
-
-            
+       
             // Draw with point clamp sampling to avoid blurry textures
             spriteBatch.Begin(
                 SpriteSortMode.Deferred,
@@ -164,7 +161,6 @@ namespace TwinStick
                 enemies[i].Draw(spriteBatch);
             }
             
-
             spriteBatch.End();
 
 

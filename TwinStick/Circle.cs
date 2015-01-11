@@ -29,6 +29,5 @@ namespace TwinStick
             }
             return depth;
         }
-
     }
 }

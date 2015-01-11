@@ -99,7 +99,6 @@ namespace TwinStick
                         SpriteEffects.None,
                         0.0f);
                 }
-
             }
         }
 
@@ -113,6 +112,29 @@ namespace TwinStick
             tile = tiles[y, x];
 
             return tile;
+        }
+
+        // Get a list of tiles collisionRect may be colliding with 
+        public List<Tile> CheckTileCollsions(Rectangle collisionRect)
+        {
+            List<Tile> tiles = new List<Tile>();
+
+            int leftTile = (int)Math.Floor((float)collisionRect.Left / Tile.WIDTH);
+            int rightTile = (int)Math.Ceiling(((float)collisionRect.Right / Tile.WIDTH)) - 1;
+            int topTile = (int)Math.Floor((float)collisionRect.Top / Tile.HEIGHT);
+            int bottomTile = (int)Math.Ceiling(((float)collisionRect.Bottom / Tile.HEIGHT)) - 1;
+
+            // For each potentially colliding tile,
+            for (int y = topTile; y <= bottomTile; ++y)
+            {
+                for (int x = leftTile; x <= rightTile; ++x)
+                {
+                    Tile tile = GetTile(x, y);
+                    tiles.Add(tile);
+                }
+            }
+
+            return tiles;
         }
     }
 }

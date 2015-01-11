@@ -122,32 +122,23 @@ namespace TwinStick
 
         private void ResolveTileCollisions(TileMap map, Vector2 axis)
         {
-
-            int leftTile = (int)Math.Floor((float)CollisionRect.Left / Tile.WIDTH);
-            int rightTile = (int)Math.Ceiling(((float)CollisionRect.Right / Tile.WIDTH)) - 1;
-            int topTile = (int)Math.Floor((float)CollisionRect.Top / Tile.HEIGHT);
-            int bottomTile = (int)Math.Ceiling(((float)CollisionRect.Bottom / Tile.HEIGHT)) - 1;
-
-            // For each potentially colliding tile,
-            for (int y = topTile; y <= bottomTile; ++y)
+            List<Tile> tiles = map.CheckTileCollsions(CollisionRect);
+            foreach (Tile tile in tiles)
             {
-                for (int x = leftTile; x <= rightTile; ++x)
+                // Resolve solid tile collision
+                if (tile.IsSolid)
                 {
-                    Tile tile = map.GetTile(x, y);
-                    if (tile.IsSolid)
+                    Vector2 depth;
+                    if (axis.X != 0)
                     {
-                        Vector2 depth;
-                        if (axis.X != 0)
-                        {
-                            depth = new Vector2(RectangleExtensions.GetHorizontalIntersectionDepth(CollisionRect, tile.BoundingRect),0);
-                        }
-                        else
-                        {
-                            depth = new Vector2(0, RectangleExtensions.GetVerticalIntersectionDepth(CollisionRect, tile.BoundingRect));
-                        }
-
-                        Position += depth;
+                        depth = new Vector2(RectangleExtensions.GetHorizontalIntersectionDepth(CollisionRect, tile.BoundingRect), 0);
                     }
+                    else
+                    {
+                        depth = new Vector2(0, RectangleExtensions.GetVerticalIntersectionDepth(CollisionRect, tile.BoundingRect));
+                    }
+
+                    Position += depth;
                 }
             }
         }

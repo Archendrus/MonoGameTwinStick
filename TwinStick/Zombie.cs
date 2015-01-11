@@ -16,7 +16,11 @@ namespace TwinStick
         {
             get
             {
-                return new Rectangle((int)Position.X + 4, (int)Position.Y, 8, Height);
+                return new Rectangle(
+                    (int)Position.X + (4 * (int)Game1.Scale.X),
+                    (int)Position.Y,
+                    (8 * (int)Game1.Scale.X),
+                    Height);
             }
         }
 
@@ -49,6 +53,39 @@ namespace TwinStick
             Vector2 direction = playerPosition - Position;
             direction.Normalize();
             Position += direction * speed * elapsed;
+            ResolveTileCollisions(map);
+        }
+
+        private void ResolveTileCollisions(TileMap map)
+        {
+            List<Tile> tiles = map.CheckTileCollsions(CollisionRect);
+            foreach (Tile tile in tiles)
+            {
+                // Resolve solid tile collision
+                if (tile.IsSolid)
+                {
+                    // Determine collision depth (with direction) and magnitude.
+                    Vector2 depth = RectangleExtensions.GetIntersectionDepth(CollisionRect, tile.BoundingRect);
+                    if (depth != Vector2.Zero)
+                    {
+                        float absDepthX = Math.Abs(depth.X);
+                        float absDepthY = Math.Abs(depth.Y);
+
+                        // Find the smallest axis, this is the side in which collision occurred.
+                        // Check if Y is the smallest axis
+                        if (absDepthY < absDepthX)
+                        {
+                            // Resolve the collision along the Y axis.
+                            Position = new Vector2(Position.X, Position.Y + depth.Y);
+                        }
+                        else // X is the smallest axis
+                        {
+                            // Resolve the collision along the X axis.
+                            Position = new Vector2(Position.X + depth.X, Position.Y);
+                        }
+                    }
+                }
+            } 
         }
     }
 }
