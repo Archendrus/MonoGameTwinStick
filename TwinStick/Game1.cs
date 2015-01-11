@@ -35,14 +35,14 @@ namespace TwinStick
             graphics = new GraphicsDeviceManager(this);
 
 
-            //graphics.PreferredBackBufferWidth = 864;
-            //graphics.PreferredBackBufferHeight = 480;
+            graphics.PreferredBackBufferWidth = 864;
+            graphics.PreferredBackBufferHeight = 480;
             //graphics.PreferredBackBufferWidth = 1280;
             //graphics.PreferredBackBufferHeight = 720;
-            graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            //graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            //graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             // Make fullscreen
-            Window.IsBorderless = true;
+            Window.IsBorderless = false;
             IsFixedTimeStep = false;
             graphics.ApplyChanges();
 
