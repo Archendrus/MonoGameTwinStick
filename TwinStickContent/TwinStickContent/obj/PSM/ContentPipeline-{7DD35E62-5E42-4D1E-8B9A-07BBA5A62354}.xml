@@ -11,15 +11,6 @@
       <Time>2015-01-13T14:44:16.5984342-05:00</Time>
     </Item>
     <Item>
-      <Source>player.png</Source>
-      <Name>player</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <Options>None</Options>
-      <Output>C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\player.xnb</Output>
-      <Time>2015-01-13T14:44:16.5974341-05:00</Time>
-    </Item>
-    <Item>
       <Source>hero.png</Source>
       <Name>hero</Name>
       <Importer>TextureImporter</Importer>
@@ -38,49 +29,13 @@
       <Time>2015-01-13T14:44:16.6014345-05:00</Time>
     </Item>
     <Item>
-      <Source>hero2.png</Source>
-      <Name>hero2</Name>
+      <Source>bullet.png</Source>
+      <Name>bullet</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
-      <Output>C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\hero2.xnb</Output>
-      <Time>2015-01-13T14:44:16.5894333-05:00</Time>
-    </Item>
-    <Item>
-      <Source>tiles2.png</Source>
-      <Name>tiles2</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <Options>None</Options>
-      <Output>C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\tiles2.xnb</Output>
-      <Time>2015-01-13T14:44:16.5994343-05:00</Time>
-    </Item>
-    <Item>
-      <Source>hero3.png</Source>
-      <Name>hero3</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <Options>None</Options>
-      <Output>C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\hero3.xnb</Output>
-      <Time>2015-01-13T14:44:16.5914335-05:00</Time>
-    </Item>
-    <Item>
-      <Source>tiles3.png</Source>
-      <Name>tiles3</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <Options>None</Options>
-      <Output>C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\tiles3.xnb</Output>
-      <Time>2015-01-13T14:44:16.6004344-05:00</Time>
-    </Item>
-    <Item>
-      <Source>zombie3.png</Source>
-      <Name>zombie3</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <Options>None</Options>
-      <Output>C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\zombie3.xnb</Output>
-      <Time>2015-01-13T14:44:16.6024346-05:00</Time>
+      <Output>C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\bullet.xnb</Output>
+      <Time>2015-01-13T16:58:13.4761668-05:00</Time>
     </Item>
     <BuildSuccessful>true</BuildSuccessful>
     <Settings>

@@ -13,7 +13,7 @@ namespace TwinStick
     class Player : Sprite
     {
         private GamePadState gamePad;
-        private Vector2 direction;
+        public Vector2 Direction { get; set;}
         private float speed;
         private KeyboardState key;
         
@@ -33,24 +33,21 @@ namespace TwinStick
             : base(texture, position)
         {
 
-            direction = new Vector2(0, 0);
+            Direction = new Vector2(0, 0);
             speed = 175f;
         }
 
         public Player(Texture2D texture)
             : base(texture)
         {
-            direction = new Vector2(0, 0);
+            Direction = new Vector2(0, 0);
             speed = 175f;
         }
 
-        public void Update(GameTime time, TileMap map)
+        public void Update(GameTime time, TileMap map, Vector2 direction)
         {
             float elapsed = (float)time.ElapsedGameTime.TotalSeconds;
             
-            // Stop moving
-            direction = Vector2.Zero;
-
             // Check gampad
             // Set direction vector values
             gamePad = GamePad.GetState(PlayerIndex.One);
@@ -78,29 +75,7 @@ namespace TwinStick
                 }
             }
 
-            // Check keyboard
-            // Set direction vector values
-            key = Keyboard.GetState();
-            // move left
-            if (key.IsKeyDown(Keys.A))
-            {
-                direction.X = -1f;
-            }
-            // move right
-            if (key.IsKeyDown(Keys.D))
-            {
-                direction.X = 1f;
-            }
-            // move up
-            if (key.IsKeyDown(Keys.W))
-            {
-                direction.Y = -1f;
-            }
-            // move down
-            if (key.IsKeyDown(Keys.S))
-            {
-                direction.Y = 1f;
-            }
+            
 
             // If input, move and check/resolve collisions
             if (direction != Vector2.Zero)

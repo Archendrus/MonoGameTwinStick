@@ -22,6 +22,9 @@ namespace TwinStick
         Player player;
         Zombie zombie;
         List<Sprite> enemies;
+        List<Sprite> bullets = new List<Sprite>();
+        KeyboardState key;
+        Texture2D bulletTexture;
 
         public static Vector2 Scale;
 
@@ -87,12 +90,17 @@ namespace TwinStick
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             Texture2D temp;
+
+            // Create tile map
             temp = Content.Load<Texture2D>("tiles");
             tileMap = new TileMap(temp);
-            temp = Content.Load<Texture2D>("hero");
 
+            // Create player
+            temp = Content.Load<Texture2D>("hero");
             player = new Player(temp);
             player.Position = new Vector2((VirtualWidth / 2) - (player.Width / 2), (VirtualHeight / 2) - (player.Height / 2));
+
+            // Create zombies
             temp = Content.Load<Texture2D>("zombie");
             enemies = new List<Sprite>();
             for (int i = 0; i < 2; i++)
@@ -100,7 +108,10 @@ namespace TwinStick
                 zombie = new Zombie(temp);
                 zombie.Position = new Vector2((VirtualWidth / 2) - (zombie.Width / 2), -(i * 50) - zombie.Height);                
                 enemies.Add(zombie);
-            }   
+            }
+
+            // load bullet texture
+            bulletTexture = Content.Load<Texture2D>("bullet");
         }
 
         /// <summary>
@@ -110,6 +121,7 @@ namespace TwinStick
         protected override void UnloadContent()
         {
             // TODO: Unload any non ContentManager content here
+            Content.Unload();
         }
 
         /// <summary>
@@ -122,7 +134,67 @@ namespace TwinStick
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            player.Update(gameTime, tileMap);
+            // Check keyboard
+            // Set direction vector values
+            Vector2 playerDirection = Vector2.Zero;
+            key = Keyboard.GetState();
+            // move left
+            if (key.IsKeyDown(Keys.A))
+            {
+                playerDirection.X = -1f;
+            }
+            // move right
+            if (key.IsKeyDown(Keys.D))
+            {
+                playerDirection.X = 1f;
+            }
+            // move up
+            if (key.IsKeyDown(Keys.W))
+            {
+                playerDirection.Y = -1f;
+            }
+            // move down
+            if (key.IsKeyDown(Keys.S))
+            {
+                playerDirection.Y = 1f;
+            }
+            
+            // Shoot
+            Bullet bullet;
+            Vector2 shootDirection = Vector2.Zero;
+            if (key.IsKeyDown(Keys.Left))
+            {
+                shootDirection = new Vector2(-1, 0);
+            }
+            if (key.IsKeyDown(Keys.Right))
+            {
+                shootDirection = new Vector2(1, 0);
+            }
+            if (key.IsKeyDown(Keys.Up))
+            {
+                shootDirection = new Vector2(0, -1);
+            }
+            if (key.IsKeyDown(Keys.Down))
+            {
+                shootDirection = new Vector2(0, 1);
+            }
+
+            player.Update(gameTime, tileMap, playerDirection);
+
+            if (shootDirection != Vector2.Zero)
+            {
+                bullet = new Bullet(bulletTexture, shootDirection);
+                bullet.Position = new Vector2(player.Position.X + (player.Width / 2.0f), player.Position.Y + (player.Height / 2.0f));
+                bullets.Add(bullet);
+            }
+
+            for (int i = 0; i < bullets.Count; i++ )
+            {
+                Bullet shot = bullets[i] as Bullet;
+                shot.Update(gameTime);
+            }
+
+
             for (int i = 0; i < enemies.Count; i++)
             {
                 Zombie zombie = enemies[i] as Zombie;
@@ -130,8 +202,6 @@ namespace TwinStick
             }
 
             ResolveEnemyCollision();
-
-            
 
             base.Update(gameTime);
         }
@@ -155,6 +225,12 @@ namespace TwinStick
                 RasterizerState.CullCounterClockwise);
             // draw map and player to render target
             tileMap.Draw(spriteBatch);
+
+            for (int i = 0; i < bullets.Count; i++ )
+            {
+                bullets[i].Draw(spriteBatch);
+            }
+
             player.Draw(spriteBatch);
             for (int i = 0; i < enemies.Count; i++)
             {
