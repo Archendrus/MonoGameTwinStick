@@ -35,14 +35,14 @@ namespace TwinStick
             graphics = new GraphicsDeviceManager(this);
 
 
-            //graphics.PreferredBackBufferWidth = 864;
-            //graphics.PreferredBackBufferHeight = 480;
+            graphics.PreferredBackBufferWidth = 864;
+            graphics.PreferredBackBufferHeight = 480;
             //graphics.PreferredBackBufferWidth = 1280;
             //graphics.PreferredBackBufferHeight = 720;
-            graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            //graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            //graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             // Make fullscreen
-            Window.IsBorderless = true;
+            Window.IsBorderless = false;
             IsFixedTimeStep = false;
             graphics.ApplyChanges();
 
@@ -95,7 +95,7 @@ namespace TwinStick
             player.Position = new Vector2((VirtualWidth / 2) - (player.Width / 2), (VirtualHeight / 2) - (player.Height / 2));
             temp = Content.Load<Texture2D>("zombie");
             enemies = new List<Sprite>();
-            for (int i = 0; i < 20; i++)
+            for (int i = 0; i < 2; i++)
             {
                 zombie = new Zombie(temp);
                 zombie.Position = new Vector2((VirtualWidth / 2) - (zombie.Width / 2), -(i * 50) - zombie.Height);                

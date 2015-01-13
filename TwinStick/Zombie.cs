@@ -58,8 +58,8 @@ namespace TwinStick
 
         private void ResolveTileCollisions(TileMap map)
         {
-            List<Tile> tiles = map.CheckTileCollsions(CollisionRect);
-            foreach (Tile tile in tiles)
+            List<Tile> collisionTiles = map.CheckTileCollsions(CollisionRect);
+            foreach (Tile tile in collisionTiles)
             {
                 // Resolve solid tile collision
                 if (tile.IsSolid)
