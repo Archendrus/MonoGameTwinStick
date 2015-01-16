@@ -75,8 +75,6 @@ namespace TwinStick
                 }
             }
 
-            
-
             // If input, move and check/resolve collisions
             if (direction != Vector2.Zero)
             {

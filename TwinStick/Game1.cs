@@ -22,9 +22,12 @@ namespace TwinStick
         Player player;
         Zombie zombie;
         List<Sprite> enemies;
-        List<Sprite> bullets = new List<Sprite>();
+        List<Sprite> bullets;
         KeyboardState key;
         Texture2D bulletTexture;
+
+        float totalElapsed = 0;
+        float fireRate = .25f;
 
         public static Vector2 Scale;
 
@@ -49,8 +52,6 @@ namespace TwinStick
             IsFixedTimeStep = false;
             graphics.ApplyChanges();
 
-            
-
             Content.RootDirectory = "Content";
         }
 
@@ -62,18 +63,14 @@ namespace TwinStick
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-
             // Create screen rectangle at size of user's desktop resolution
             screenRectangle = new Rectangle(
                 0, 0, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight);
 
-            
-
             // Create a 2x scale
             Scale = new Vector2(2, 2);
 
-            // Create render target at 2x Virtual resolution
+            // Create render target at Virtual resolution
             renderTarget = new RenderTarget2D(GraphicsDevice, VirtualWidth, VirtualHeight);
 
             base.Initialize();
@@ -84,8 +81,7 @@ namespace TwinStick
         /// all of your content.
         /// </summary>
         protected override void LoadContent()
-        {
-            
+        {            
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
@@ -112,6 +108,8 @@ namespace TwinStick
 
             // load bullet texture
             bulletTexture = Content.Load<Texture2D>("bullet");
+
+            bullets = new List<Sprite>();
         }
 
         /// <summary>
@@ -158,6 +156,8 @@ namespace TwinStick
             {
                 playerDirection.Y = 1f;
             }
+
+            player.Update(gameTime, tileMap, playerDirection);
             
             // Shoot
             Bullet bullet;
@@ -179,13 +179,18 @@ namespace TwinStick
                 shootDirection = new Vector2(0, 1);
             }
 
-            player.Update(gameTime, tileMap, playerDirection);
-
+            totalElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (shootDirection != Vector2.Zero)
             {
-                bullet = new Bullet(bulletTexture, shootDirection);
-                bullet.Position = new Vector2(player.Position.X + (player.Width / 2.0f), player.Position.Y + (player.Height / 2.0f));
-                bullets.Add(bullet);
+                if (totalElapsed > fireRate)
+                {
+                    bullet = new Bullet(bulletTexture, shootDirection);
+                    bullet.Position = new Vector2(
+                        player.Position.X + ((player.Width / 2.0f) - (bullet.Width / 2.0f)),
+                        player.Position.Y + ((player.Height / 2.0f) - (bullet.Height / 2.0f)));
+                    bullets.Add(bullet);
+                    totalElapsed = 0;
+                }      
             }
 
             for (int i = 0; i < bullets.Count; i++ )
