@@ -2,7 +2,6 @@ C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickConte
 C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\obj\PSM\Microsoft.Xna.Framework.RuntimeProfile.txt
 C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\obj\PSM\IgnoreMe.dll
 C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\tiles.xnb
-C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\player.xnb
 C:\Users\wtaplin\Documents\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\tiles.xnb
 C:\Users\wtaplin\Documents\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\player.xnb
 C:\Users\wtaplin\Documents\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\IgnoreMe.dll
@@ -19,14 +18,8 @@ C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickConte
 C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\obj\PSM\TwinStickContent.csprojResolveAssemblyReference.cache
 C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\zombie.xnb
 C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\tiles.png
-C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\player.png
 C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\hero.png
 C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\zombie.png
-C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\hero2.xnb
-C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\tiles2.xnb
-C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\hero3.xnb
-C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\tiles3.xnb
-C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\zombie3.xnb
 C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\tiles.xnb
 C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\hero.xnb
 C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\zombie.xnb
@@ -38,3 +31,4 @@ C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickConte
 C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\obj\PSM\Microsoft.Xna.Framework.RuntimeProfile.txt
 C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\obj\PSM\IgnoreMe.dll
 C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\bullet.xnb
+C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\bullet.xnb

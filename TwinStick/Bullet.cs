@@ -10,7 +10,7 @@ namespace TwinStick
 {
     class Bullet : Sprite
     {
-        private float speed = 300f;
+        private float speed = 500f;
         Vector2 direction;
 
         public Rectangle CollisionRect

@@ -24,10 +24,11 @@ namespace TwinStick
         List<Sprite> enemies;
         List<Sprite> bullets;
         KeyboardState key;
+        GamePadState gamePad;
         Texture2D bulletTexture;
 
         float totalElapsed = 0;
-        float fireRate = .25f;
+        float fireRate = .30f;
 
         public static Vector2 Scale;
 
@@ -41,10 +42,10 @@ namespace TwinStick
             graphics = new GraphicsDeviceManager(this);
 
 
-            graphics.PreferredBackBufferWidth = 864;
-            graphics.PreferredBackBufferHeight = 480;
-            //graphics.PreferredBackBufferWidth = 1280;
-            //graphics.PreferredBackBufferHeight = 720;
+            //graphics.PreferredBackBufferWidth = 864;
+            //graphics.PreferredBackBufferHeight = 480;
+            graphics.PreferredBackBufferWidth = 1280;
+            graphics.PreferredBackBufferHeight = 720;
             //graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             //graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             // Make fullscreen
@@ -132,74 +133,91 @@ namespace TwinStick
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // Check keyboard
-            // Set direction vector values
+
+            // Reset direction vector to stop moving
             Vector2 playerDirection = Vector2.Zero;
+
+            // Get keyboard and gamepad states
             key = Keyboard.GetState();
+            gamePad = GamePad.GetState(PlayerIndex.One);
+
+            // Handle movement input
+            // Set x,y values independently to allow for diagonal movement
             // move left
-            if (key.IsKeyDown(Keys.A))
+            if (key.IsKeyDown(Keys.A) || gamePad.ThumbSticks.Left.X < 0)
             {
                 playerDirection.X = -1f;
             }
             // move right
-            if (key.IsKeyDown(Keys.D))
+            if (key.IsKeyDown(Keys.D) || gamePad.ThumbSticks.Left.X > 0)
             {
                 playerDirection.X = 1f;
             }
             // move up
-            if (key.IsKeyDown(Keys.W))
+            if (key.IsKeyDown(Keys.W) || gamePad.ThumbSticks.Left.Y > 0)
             {
                 playerDirection.Y = -1f;
             }
             // move down
-            if (key.IsKeyDown(Keys.S))
+            if (key.IsKeyDown(Keys.S) || gamePad.ThumbSticks.Left.Y < 0)
             {
                 playerDirection.Y = 1f;
             }
-
-            player.Update(gameTime, tileMap, playerDirection);
             
-            // Shoot
-            Bullet bullet;
+            
+            // Handle shooting input
+            // Set opposite axis to zero to disallow diagonal shooting
+            // .5 and -.5 as the threshold for stick axis so won't change shoot direction
+            // until pushing dominantly in that direction
             Vector2 shootDirection = Vector2.Zero;
-            if (key.IsKeyDown(Keys.Left))
+            if (key.IsKeyDown(Keys.Left) || gamePad.ThumbSticks.Right.X < -.5)
             {
-                shootDirection = new Vector2(-1, 0);
+                shootDirection.X = -1;
             }
-            if (key.IsKeyDown(Keys.Right))
+            if (key.IsKeyDown(Keys.Right) || gamePad.ThumbSticks.Right.X > .5)
             {
-                shootDirection = new Vector2(1, 0);
+                shootDirection.X = 1;
             }
-            if (key.IsKeyDown(Keys.Up))
+            if (key.IsKeyDown(Keys.Up) || gamePad.ThumbSticks.Right.Y > .5)
             {
-                shootDirection = new Vector2(0, -1);
+                shootDirection.Y = -1;
             }
-            if (key.IsKeyDown(Keys.Down))
+            if (key.IsKeyDown(Keys.Down) || gamePad.ThumbSticks.Right.Y < -.5)
             {
-                shootDirection = new Vector2(0, 1);
+                shootDirection.Y = 1;
             }
 
+            // accumulate elapsed time
             totalElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            // if shooting
             if (shootDirection != Vector2.Zero)
             {
+                // if fireRate time has passed since last shot
                 if (totalElapsed > fireRate)
                 {
-                    bullet = new Bullet(bulletTexture, shootDirection);
+                    // create a new bullet at player position, in shootDirection
+                    shootDirection.Normalize();
+                    Bullet bullet = new Bullet(bulletTexture, shootDirection);
                     bullet.Position = new Vector2(
                         player.Position.X + ((player.Width / 2.0f) - (bullet.Width / 2.0f)),
                         player.Position.Y + ((player.Height / 2.0f) - (bullet.Height / 2.0f)));
                     bullets.Add(bullet);
+                    // reset timer
                     totalElapsed = 0;
                 }      
             }
 
+            // Update the player
+            player.Update(gameTime, tileMap, playerDirection);
+
+            // Update the bullets
             for (int i = 0; i < bullets.Count; i++ )
             {
                 Bullet shot = bullets[i] as Bullet;
                 shot.Update(gameTime);
             }
 
-
+            // Update the enemies
             for (int i = 0; i < enemies.Count; i++)
             {
                 Zombie zombie = enemies[i] as Zombie;
@@ -217,7 +235,7 @@ namespace TwinStick
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            // Set Render to 432X240 render target
+            // Set Render to 800X480 render target
             GraphicsDevice.SetRenderTarget(renderTarget);
             GraphicsDevice.Clear(Color.CornflowerBlue);
        
@@ -228,15 +246,20 @@ namespace TwinStick
                 SamplerState.PointClamp,
                 DepthStencilState.None,
                 RasterizerState.CullCounterClockwise);
-            // draw map and player to render target
+
+            // draw map 
             tileMap.Draw(spriteBatch);
 
+            // draw bullets
             for (int i = 0; i < bullets.Count; i++ )
             {
                 bullets[i].Draw(spriteBatch);
             }
 
+            // draw player over bullets
             player.Draw(spriteBatch);
+
+            // draw enemies over player
             for (int i = 0; i < enemies.Count; i++)
             {
                 enemies[i].Draw(spriteBatch);
@@ -258,11 +281,12 @@ namespace TwinStick
 
             spriteBatch.End();
 
-            // TODO: Add your drawing code here
-
             base.Draw(gameTime);
         }
 
+
+        // Check for and resolve collisions between enemies
+        // if two enemies collide, push them back in opposite directions
         public void ResolveEnemyCollision()
         {
             for (int i = 0; i < enemies.Count; i++)
@@ -271,12 +295,20 @@ namespace TwinStick
                 {
                     Zombie zombie1 = enemies[i] as Zombie;
                     Zombie zombie2 = enemies[j] as Zombie;
+
+                    // Check if enemies are colliding and get the depth of collision
                     float depth = zombie1.CollisionCircle.GetIntersectionDepth(zombie2.CollisionCircle);
+
+                    // Collision
                     if (depth != 0)
                     {
+                        // Get direction to move first zombie away from second zombie
                         Vector2 direction = zombie1.CollisionCircle.Position - zombie2.CollisionCircle.Position;
                         direction.Normalize();
+
+                        // Move first zombie away half the depth of collision
                         zombie1.Position += direction * (depth / 2.0f);
+                        // Move second zombie in the opposite direction half the depth of collision
                         zombie2.Position -= direction * (depth / 2.0f);
                     }
                 }

@@ -12,7 +12,7 @@ namespace TwinStick
 {
     class Player : Sprite
     {
-        private GamePadState gamePad;
+        
         public Vector2 Direction { get; set;}
         private float speed;
         private KeyboardState key;
@@ -48,33 +48,6 @@ namespace TwinStick
         {
             float elapsed = (float)time.ElapsedGameTime.TotalSeconds;
             
-            // Check gampad
-            // Set direction vector values
-            gamePad = GamePad.GetState(PlayerIndex.One);
-            if (gamePad.IsConnected)
-            {
-                // Move left
-                if (gamePad.ThumbSticks.Left.X < 0)
-                {
-                    direction.X = -1f;
-                }
-                // Move right
-                else if (gamePad.ThumbSticks.Left.X > 0)
-                {
-                    direction.X = 1f;
-                }
-                // Move up
-                if (gamePad.ThumbSticks.Left.Y > 0)
-                {
-                    direction.Y = -1f;
-                }
-                // Move down
-                else if (gamePad.ThumbSticks.Left.Y < 0)
-                {
-                    direction.Y = 1f;
-                }
-            }
-
             // If input, move and check/resolve collisions
             if (direction != Vector2.Zero)
             {
