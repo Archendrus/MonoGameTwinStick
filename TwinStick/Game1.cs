@@ -21,8 +21,8 @@ namespace TwinStick
         TileMap tileMap;
         Player player;
         Zombie zombie;
-        List<Sprite> enemies;
-        List<Sprite> bullets;
+        List<Zombie> enemies;
+        List<Bullet> bullets;
         KeyboardState key;
         GamePadState gamePad;
         Texture2D bulletTexture;
@@ -99,7 +99,7 @@ namespace TwinStick
 
             // Create zombies
             temp = Content.Load<Texture2D>("zombie");
-            enemies = new List<Sprite>();
+            enemies = new List<Zombie>();
             for (int i = 0; i < 2; i++)
             {
                 zombie = new Zombie(temp);
@@ -110,7 +110,7 @@ namespace TwinStick
             // load bullet texture
             bulletTexture = Content.Load<Texture2D>("bullet");
 
-            bullets = new List<Sprite>();
+            bullets = new List<Bullet>();
         }
 
         /// <summary>
@@ -213,15 +213,22 @@ namespace TwinStick
             // Update the bullets
             for (int i = 0; i < bullets.Count; i++ )
             {
-                Bullet shot = bullets[i] as Bullet;
-                shot.Update(gameTime);
+                bullets[i].Update(gameTime, tileMap);
+            }
+            
+            // Remove inactive bullets
+            for (int i = 0; i < bullets.Count; i++)
+            {
+                if (!bullets[i].IsActive)
+                {
+                    bullets.Remove(bullets[i]);
+                }
             }
 
             // Update the enemies
             for (int i = 0; i < enemies.Count; i++)
             {
-                Zombie zombie = enemies[i] as Zombie;
-                zombie.Update(gameTime, tileMap, player.Position);
+                enemies[i].Update(gameTime, tileMap, player.Position);
             }
 
             ResolveEnemyCollision();
