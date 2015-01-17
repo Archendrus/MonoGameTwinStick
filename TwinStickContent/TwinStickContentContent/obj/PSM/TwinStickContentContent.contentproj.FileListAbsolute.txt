@@ -1,3 +1,4 @@
 C:\Users\wtaplin\Documents\TwinStick\TwinStickContent\TwinStickContentContent\obj\PSM\TwinStickContentContent.contentprojResolveAssemblyReference.cache
 F:\TwinStick\TwinStickContent\TwinStickContentContent\obj\PSM\TwinStickContentContent.contentprojResolveAssemblyReference.cache
 C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContentContent\obj\PSM\TwinStickContentContent.contentprojResolveAssemblyReference.cache
+C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContentContent\obj\PSM\TwinStickContentContent.contentprojResolveAssemblyReference.cache

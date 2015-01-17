@@ -14,8 +14,6 @@ namespace TwinStick
         private Vector2 direction;
         private List<Tile> collisionTiles = new List<Tile>();
 
-        public bool IsActive { get; private set; }
-
         // Collision rect same as bounding rect for bullet
         public Rectangle CollisionRect
         {
@@ -28,7 +26,6 @@ namespace TwinStick
         public Bullet(Texture2D texture, Vector2 direction) : base(texture)
         {
             this.direction = direction;
-            IsActive = true;
         }
 
         public void Update(GameTime time, TileMap map)
@@ -38,13 +35,18 @@ namespace TwinStick
 
             Position += direction * speed * elapsed;
 
+            if (!Game1.screenRectangle.Contains(BoundingRect))
+            {
+                IsAlive = false;
+            }
+
             // Check for collision with tiles
             collisionTiles = map.CheckTileCollsions(CollisionRect);
             foreach (Tile tile in collisionTiles)
             {
                 if (tile.IsSolid)
                 {
-                    IsActive = false;
+                    IsAlive = false;
                 }
             }
         }

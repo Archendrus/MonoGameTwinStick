@@ -17,7 +17,7 @@ namespace TwinStick
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         RenderTarget2D renderTarget;
-        Rectangle screenRectangle;
+        public static Rectangle screenRectangle;
         TileMap tileMap;
         Player player;
         Zombie zombie;
@@ -44,12 +44,12 @@ namespace TwinStick
 
             //graphics.PreferredBackBufferWidth = 864;
             //graphics.PreferredBackBufferHeight = 480;
-            graphics.PreferredBackBufferWidth = 1280;
-            graphics.PreferredBackBufferHeight = 720;
-            //graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            //graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            //graphics.PreferredBackBufferWidth = 1280;
+            //graphics.PreferredBackBufferHeight = 720;
+            graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             // Make fullscreen
-            Window.IsBorderless = false;
+            Window.IsBorderless = true;
             IsFixedTimeStep = false;
             graphics.ApplyChanges();
 
@@ -100,7 +100,7 @@ namespace TwinStick
             // Create zombies
             temp = Content.Load<Texture2D>("zombie");
             enemies = new List<Zombie>();
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < 50; i++)
             {
                 zombie = new Zombie(temp);
                 zombie.Position = new Vector2((VirtualWidth / 2) - (zombie.Width / 2), -(i * 50) - zombie.Height);                
@@ -132,7 +132,6 @@ namespace TwinStick
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-
 
             // Reset direction vector to stop moving
             Vector2 playerDirection = Vector2.Zero;
@@ -209,22 +208,7 @@ namespace TwinStick
 
             // Update the player
             player.Update(gameTime, tileMap, playerDirection);
-
-            // Update the bullets
-            for (int i = 0; i < bullets.Count; i++ )
-            {
-                bullets[i].Update(gameTime, tileMap);
-            }
-            
-            // Remove inactive bullets
-            for (int i = 0; i < bullets.Count; i++)
-            {
-                if (!bullets[i].IsActive)
-                {
-                    bullets.Remove(bullets[i]);
-                }
-            }
-
+           
             // Update the enemies
             for (int i = 0; i < enemies.Count; i++)
             {
@@ -232,6 +216,38 @@ namespace TwinStick
             }
 
             ResolveEnemyCollision();
+
+            // Update the bullets
+            for (int i = 0; i < bullets.Count; i++ )
+            {
+                bullets[i].Update(gameTime, tileMap);
+                for (int j = 0; j < enemies.Count; j++)
+                {
+                    if (bullets[i].CollisionRect.Intersects(enemies[j].CollisionRect))
+                    {
+                        bullets[i].IsAlive = false;
+                        enemies[j].IsAlive = false;
+                    }
+                }
+            }
+
+            // Remove inactive bullets
+            for (int i = 0; i < bullets.Count; i++)
+            {
+                if (!bullets[i].IsAlive)
+                {
+                    bullets.Remove(bullets[i]);
+                }
+            }
+
+            // Remove inactive enemies
+            for (int i = 0; i < enemies.Count; i++)
+            {
+                if (!enemies[i].IsAlive)
+                {
+                    enemies.Remove(enemies[i]);
+                }
+            }
 
             base.Update(gameTime);
         }

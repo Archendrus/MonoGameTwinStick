@@ -18,6 +18,8 @@ namespace TwinStick
         public int Width { get; private set; }
         public int Height { get; private set; }
 
+        public bool IsAlive { get; set; }
+
         public Rectangle BoundingRect
         {
             get
@@ -32,6 +34,7 @@ namespace TwinStick
             Position = position;
             Height = texture.Height * (int)Game1.Scale.Y;
             Width = texture.Width * (int)Game1.Scale.X;
+            IsAlive = true;
             
         }
 
@@ -41,6 +44,7 @@ namespace TwinStick
             Position = Vector2.Zero;
             Width = texture.Width * (int)Game1.Scale.X;
             Height = texture.Height * (int)Game1.Scale.Y;
+            IsAlive = true;
         }
 
         public virtual void Draw(SpriteBatch spriteBatch)
