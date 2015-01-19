@@ -27,6 +27,9 @@ namespace TwinStick
         GamePadState gamePad;
         Texture2D bulletTexture;
 
+        Vector2 playerDirection;
+        Vector2 shootDirection;
+
         float totalElapsed = 0;
         float fireRate = .30f;
 
@@ -133,78 +136,9 @@ namespace TwinStick
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // Reset direction vector to stop moving
-            Vector2 playerDirection = Vector2.Zero;
+            HandleInput();
 
-            // Get keyboard and gamepad states
-            key = Keyboard.GetState();
-            gamePad = GamePad.GetState(PlayerIndex.One);
-
-            // Handle movement input
-            // Set x,y values independently to allow for diagonal movement
-            // move left
-            if (key.IsKeyDown(Keys.A) || gamePad.ThumbSticks.Left.X < 0)
-            {
-                playerDirection.X = -1f;
-            }
-            // move right
-            if (key.IsKeyDown(Keys.D) || gamePad.ThumbSticks.Left.X > 0)
-            {
-                playerDirection.X = 1f;
-            }
-            // move up
-            if (key.IsKeyDown(Keys.W) || gamePad.ThumbSticks.Left.Y > 0)
-            {
-                playerDirection.Y = -1f;
-            }
-            // move down
-            if (key.IsKeyDown(Keys.S) || gamePad.ThumbSticks.Left.Y < 0)
-            {
-                playerDirection.Y = 1f;
-            }
-            
-            
-            // Handle shooting input
-            // Set opposite axis to zero to disallow diagonal shooting
-            // .5 and -.5 as the threshold for stick axis so won't change shoot direction
-            // until pushing dominantly in that direction
-            Vector2 shootDirection = Vector2.Zero;
-            if (key.IsKeyDown(Keys.Left) || gamePad.ThumbSticks.Right.X < -.5)
-            {
-                shootDirection.X = -1;
-            }
-            if (key.IsKeyDown(Keys.Right) || gamePad.ThumbSticks.Right.X > .5)
-            {
-                shootDirection.X = 1;
-            }
-            if (key.IsKeyDown(Keys.Up) || gamePad.ThumbSticks.Right.Y > .5)
-            {
-                shootDirection.Y = -1;
-            }
-            if (key.IsKeyDown(Keys.Down) || gamePad.ThumbSticks.Right.Y < -.5)
-            {
-                shootDirection.Y = 1;
-            }
-
-            // accumulate elapsed time
-            totalElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
-            // if shooting
-            if (shootDirection != Vector2.Zero)
-            {
-                // if fireRate time has passed since last shot
-                if (totalElapsed > fireRate)
-                {
-                    // create a new bullet at player position, in shootDirection
-                    shootDirection.Normalize();
-                    Bullet bullet = new Bullet(bulletTexture, shootDirection);
-                    bullet.Position = new Vector2(
-                        player.Position.X + ((player.Width / 2.0f) - (bullet.Width / 2.0f)),
-                        player.Position.Y + ((player.Height / 2.0f) - (bullet.Height / 2.0f)));
-                    bullets.Add(bullet);
-                    // reset timer
-                    totalElapsed = 0;
-                }      
-            }
+            CreateBullets(gameTime);
 
             // Update the player
             player.Update(gameTime, tileMap, playerDirection);
@@ -217,37 +151,9 @@ namespace TwinStick
 
             ResolveEnemyCollision();
 
-            // Update the bullets
-            for (int i = 0; i < bullets.Count; i++ )
-            {
-                bullets[i].Update(gameTime, tileMap);
-                for (int j = 0; j < enemies.Count; j++)
-                {
-                    if (bullets[i].CollisionRect.Intersects(enemies[j].CollisionRect))
-                    {
-                        bullets[i].IsAlive = false;
-                        enemies[j].IsAlive = false;
-                    }
-                }
-            }
+            UpdateBulletsAndCheckCollisions(gameTime);
 
-            // Remove inactive bullets
-            for (int i = 0; i < bullets.Count; i++)
-            {
-                if (!bullets[i].IsAlive)
-                {
-                    bullets.Remove(bullets[i]);
-                }
-            }
-
-            // Remove inactive enemies
-            for (int i = 0; i < enemies.Count; i++)
-            {
-                if (!enemies[i].IsAlive)
-                {
-                    enemies.Remove(enemies[i]);
-                }
-            }
+            CleanupSpriteLists();
 
             base.Update(gameTime);
         }
@@ -305,6 +211,123 @@ namespace TwinStick
             spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+        public void HandleInput()
+        {
+            // Reset direction vector to stop moving
+            playerDirection = Vector2.Zero;
+
+            // Get keyboard and gamepad states
+            key = Keyboard.GetState();
+            gamePad = GamePad.GetState(PlayerIndex.One);
+
+            // Handle movement input
+            // Set x,y values independently to allow for diagonal movement
+            // move left
+            if (key.IsKeyDown(Keys.A) || gamePad.ThumbSticks.Left.X < 0)
+            {
+                playerDirection.X = -1f;
+            }
+            // move right
+            if (key.IsKeyDown(Keys.D) || gamePad.ThumbSticks.Left.X > 0)
+            {
+                playerDirection.X = 1f;
+            }
+            // move up
+            if (key.IsKeyDown(Keys.W) || gamePad.ThumbSticks.Left.Y > 0)
+            {
+                playerDirection.Y = -1f;
+            }
+            // move down
+            if (key.IsKeyDown(Keys.S) || gamePad.ThumbSticks.Left.Y < 0)
+            {
+                playerDirection.Y = 1f;
+            }
+
+
+            // Handle shooting input
+            // Set opposite axis to zero to disallow diagonal shooting
+            // .5 and -.5 as the threshold for stick axis so won't change shoot direction
+            // until pushing dominantly in that direction
+            shootDirection = Vector2.Zero;
+            if (key.IsKeyDown(Keys.Left) || gamePad.ThumbSticks.Right.X < -.5)
+            {
+                shootDirection.X = -1;
+            }
+            if (key.IsKeyDown(Keys.Right) || gamePad.ThumbSticks.Right.X > .5)
+            {
+                shootDirection.X = 1;
+            }
+            if (key.IsKeyDown(Keys.Up) || gamePad.ThumbSticks.Right.Y > .5)
+            {
+                shootDirection.Y = -1;
+            }
+            if (key.IsKeyDown(Keys.Down) || gamePad.ThumbSticks.Right.Y < -.5)
+            {
+                shootDirection.Y = 1;
+            }
+        }
+
+        public void CreateBullets(GameTime gameTime)
+        {
+            // accumulate elapsed time
+            totalElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            // if shooting
+            if (shootDirection != Vector2.Zero)
+            {
+                // if fireRate time has passed since last shot
+                if (totalElapsed > fireRate)
+                {
+                    // create a new bullet at player position, in shootDirection
+                    shootDirection.Normalize();
+                    Bullet bullet = new Bullet(bulletTexture, shootDirection);
+                    bullet.Position = new Vector2(
+                        player.Position.X + ((player.Width / 2.0f) - (bullet.Width / 2.0f)),
+                        player.Position.Y + ((player.Height / 2.0f) - (bullet.Height / 2.0f)));
+                    bullets.Add(bullet);
+                    // reset timer
+                    totalElapsed = 0;
+                }
+            }
+        }
+
+        public void UpdateBulletsAndCheckCollisions(GameTime gameTime)
+        {
+            // Update the bullets
+            for (int i = 0; i < bullets.Count; i++)
+            {
+                bullets[i].Update(gameTime, tileMap);
+                for (int j = 0; j < enemies.Count; j++)
+                {
+                    if (bullets[i].CollisionRect.Intersects(enemies[j].CollisionRect))
+                    {
+                        bullets[i].IsAlive = false;
+                        enemies[j].IsAlive = false;
+                    }
+                }
+            }
+        }
+
+        public void CleanupSpriteLists()
+        {
+            // Remove inactive bullets
+            for (int i = 0; i < bullets.Count; i++)
+            {
+                if (!bullets[i].IsAlive)
+                {
+                    bullets.Remove(bullets[i]);
+                }
+            }
+
+            // Remove inactive enemies
+            for (int i = 0; i < enemies.Count; i++)
+            {
+                if (!enemies[i].IsAlive)
+                {
+                    enemies.Remove(enemies[i]);
+                }
+            }
         }
 
 
