@@ -35,7 +35,7 @@ namespace TwinStick
 
             Position += direction * speed * elapsed;
 
-            if (!Game1.screenRectangle.Contains(BoundingRect))
+            if (!Game1.virtualScreenRect.Contains(BoundingRect))
             {
                 IsAlive = false;
             }

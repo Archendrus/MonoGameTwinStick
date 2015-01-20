@@ -22,6 +22,7 @@ namespace TwinStick
         public const int VirtualHeight = 480;
         public static Vector2 Scale;     
         public static Rectangle screenRectangle;
+        public static Rectangle virtualScreenRect;
 
         // Game objects
         TileMap tileMap;
@@ -50,14 +51,14 @@ namespace TwinStick
         {
             graphics = new GraphicsDeviceManager(this);
 
-            //graphics.PreferredBackBufferWidth = 864;
-            //graphics.PreferredBackBufferHeight = 480;
+            graphics.PreferredBackBufferWidth = 864;
+            graphics.PreferredBackBufferHeight = 480;
             //graphics.PreferredBackBufferWidth = 1280;
             //graphics.PreferredBackBufferHeight = 720;
-            graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            //graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            //graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             // Make fullscreen
-            Window.IsBorderless = true;
+            Window.IsBorderless = false;
             IsFixedTimeStep = false;
             graphics.ApplyChanges();
 
@@ -75,6 +76,8 @@ namespace TwinStick
             // Create screen rectangle at size of user's desktop resolution
             screenRectangle = new Rectangle(
                 0, 0, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight);
+
+            virtualScreenRect = new Rectangle(0, 0, VirtualWidth, VirtualHeight);
 
             // Create a 2x scale
             Scale = new Vector2(2, 2);

@@ -48,8 +48,6 @@ namespace TwinStick
         {
             float elapsed = (float)time.ElapsedGameTime.TotalSeconds;
             
-
-
             // If input, move and check/resolve collisions
             if (direction != Vector2.Zero)
             {
@@ -65,6 +63,15 @@ namespace TwinStick
                 Position += new Vector2(0, direction.Y * speed * elapsed);
                 axis = new Vector2(0, direction.Y);
                 ResolveTileCollisions(map, axis);
+            }
+
+            if (CollisionRect.Left > Game1.virtualScreenRect.Width)
+            {
+                Position = new Vector2(Game1.virtualScreenRect.Left, Position.Y);
+            }
+            if (CollisionRect.Right < Game1.virtualScreenRect.Left)
+            {
+                Position = new Vector2(Game1.virtualScreenRect.Right, Position.Y);
             }
         }
 
