@@ -48,6 +48,8 @@ namespace TwinStick
         {
             float elapsed = (float)time.ElapsedGameTime.TotalSeconds;
             
+
+
             // If input, move and check/resolve collisions
             if (direction != Vector2.Zero)
             {
