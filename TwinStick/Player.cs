@@ -65,13 +65,22 @@ namespace TwinStick
                 ResolveTileCollisions(map, axis);
             }
 
-            if (CollisionRect.Left > Game1.virtualScreenRect.Width)
+            // Wrap around the screen in all directions
+            if (Position.X > Game1.virtualScreenRect.Width)
             {
-                Position = new Vector2(Game1.virtualScreenRect.Left, Position.Y);
+                Position = new Vector2(-BoundingRect.Width, Position.Y);
             }
-            if (CollisionRect.Right < Game1.virtualScreenRect.Left)
+            if (Position.X < -BoundingRect.Width)
             {
-                Position = new Vector2(Game1.virtualScreenRect.Right, Position.Y);
+                Position = new Vector2(Game1.virtualScreenRect.Width, Position.Y);
+            }
+            if (Position.Y > Game1.virtualScreenRect.Height)
+            {
+                Position = new Vector2(Position.X, -BoundingRect.Height);
+            }
+            if (Position.Y < -BoundingRect.Height)
+            {
+                Position = new Vector2(Position.X, Game1.virtualScreenRect.Height);
             }
         }
 
