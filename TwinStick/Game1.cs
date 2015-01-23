@@ -27,7 +27,6 @@ namespace TwinStick
         // Game objects
         TileMap tileMap;
         Player player;
-        Zombie zombie;
 
         // Sprite lists
         List<Zombie> enemies;
@@ -39,12 +38,17 @@ namespace TwinStick
 
         // Texture for bullet
         Texture2D bulletTexture;
+        Texture2D zombieTexture;
 
         // Player/bullet update args
         Vector2 playerDirection;
         Vector2 shootDirection;
-        float totalElapsed = 0;
+        float shotTimerElapsed = 0;
         float fireRate = .30f;
+
+        List<Vector2> spawnPoints;
+        float enemySpawnElapsed = 0;
+        float spawnRate = 3.0f;
 
         public Game1()
             : base()
@@ -110,16 +114,18 @@ namespace TwinStick
             player.Position = new Vector2((VirtualWidth / 2) - (player.Width / 2), (VirtualHeight / 2) - (player.Height / 2));
 
             // Create zombies and zombie list
-            temp = Content.Load<Texture2D>("zombie");
+            zombieTexture = Content.Load<Texture2D>("zombie");
             enemies = new List<Zombie>();
-            for (int i = 0; i < 50; i++)
-            {
-                zombie = new Zombie(temp);
-                zombie.Position = new Vector2((VirtualWidth / 2) - (zombie.Width / 2), -(i * 50) - zombie.Height);                
-                enemies.Add(zombie);
-            }
 
-            // load bullet texture
+            // Initialize spawn points
+            spawnPoints = new List<Vector2>();
+            float centerY = (VirtualHeight / 2.0f) - (zombieTexture.Height / 2.0f);
+            float centerX = (VirtualWidth / 2.0f) - (zombieTexture.Width / 2.0f);
+            spawnPoints.Add(new Vector2(0 - (zombieTexture.Width / 2.0f), centerY));
+            spawnPoints.Add(new Vector2(VirtualWidth + (zombieTexture.Width / 2.0f), centerY));
+            spawnPoints.Add(new Vector2(centerX, 0 - (zombieTexture.Height / 2.0f)));
+            spawnPoints.Add(new Vector2(centerX, VirtualHeight + (zombieTexture.Height / 2.0f)));
+            
             bulletTexture = Content.Load<Texture2D>("bullet");
 
             // create bullet list
@@ -146,6 +152,7 @@ namespace TwinStick
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            SpawnEnemies(gameTime);
             // Get input, update playerDirection and shootDirection vectors
             HandleInput();
 
@@ -286,12 +293,12 @@ namespace TwinStick
         public void CreateBullets(GameTime gameTime)
         {
             // accumulate elapsed time
-            totalElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            shotTimerElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
             // if input
             if (shootDirection != Vector2.Zero)
             {
                 // if fireRate time has passed since last shot
-                if (totalElapsed > fireRate)
+                if (shotTimerElapsed > fireRate)
                 {
                     // create a new bullet at player position, in shootDirection
                     // add to bullet list
@@ -302,7 +309,7 @@ namespace TwinStick
                         player.Position.Y + ((player.Height / 2.0f) - (bullet.Height / 2.0f)));
                     bullets.Add(bullet);
                     // reset timer
-                    totalElapsed = 0;
+                    shotTimerElapsed = 0;
                 }
             }
         }
@@ -374,6 +381,20 @@ namespace TwinStick
                         zombie2.Position -= direction * (depth / 2.0f);
                     }
                 }
+            }
+        }
+
+        public void SpawnEnemies(GameTime gameTime)
+        {
+            enemySpawnElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (enemySpawnElapsed > spawnRate)
+            {
+                foreach (Vector2 spawnPoint in spawnPoints)
+                {
+                    enemies.Add(new Zombie(zombieTexture, spawnPoint));
+                }
+                // reset timer
+                enemySpawnElapsed = 0;
             }
         }
     }
