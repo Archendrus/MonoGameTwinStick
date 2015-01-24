@@ -27,6 +27,7 @@ namespace TwinStick
         // Game objects
         TileMap tileMap;
         Player player;
+        Victim victim;
 
         // Sprite lists
         List<Zombie> enemies;
@@ -39,6 +40,7 @@ namespace TwinStick
         // Texture for bullet
         Texture2D bulletTexture;
         Texture2D zombieTexture;
+        Texture2D victimTexture;
 
         // Player/bullet update args
         Vector2 playerDirection;
@@ -49,6 +51,8 @@ namespace TwinStick
         List<Vector2> spawnPoints;
         float enemySpawnElapsed = 0;
         float spawnRate = 3.0f;
+
+        Random random;
 
         public Game1()
             : base()
@@ -130,6 +134,12 @@ namespace TwinStick
 
             // create bullet list
             bullets = new List<Bullet>();
+
+            // Victim
+            victimTexture = Content.Load<Texture2D>("victim");
+            victim = new Victim(victimTexture);
+            victim.IsAlive = false;
+            random = new Random();
         }
 
         /// <summary>
@@ -152,7 +162,6 @@ namespace TwinStick
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            SpawnEnemies(gameTime);
             // Get input, update playerDirection and shootDirection vectors
             HandleInput();
 
@@ -161,7 +170,18 @@ namespace TwinStick
 
             // Update the player
             player.Update(gameTime, tileMap, playerDirection);
-           
+
+            // Create enemies
+            SpawnEnemies(gameTime);
+            
+            // Spawn victims
+            SpawnVictims();
+
+            // Check victim save
+            if (player.CollisionRect.Intersects(victim.CollisionRect))
+            {
+                victim.IsAlive = false;
+            }
             // Update the enemies
             for (int i = 0; i < enemies.Count; i++)
             {
@@ -180,6 +200,7 @@ namespace TwinStick
             base.Update(gameTime);
         }
 
+        
         /// <summary>
         /// This is called when the game should draw itself.
         /// </summary>
@@ -208,6 +229,11 @@ namespace TwinStick
 
             // draw player over bullets
             player.Draw(spriteBatch);
+
+            if (victim.IsAlive)
+            {
+                victim.Draw(spriteBatch);
+            }
 
             // draw all enemies over player
             for (int i = 0; i < enemies.Count; i++)
@@ -274,19 +300,23 @@ namespace TwinStick
             shootDirection = Vector2.Zero;
             if (key.IsKeyDown(Keys.Left) || gamePad.ThumbSticks.Right.X < -.5)
             {
-                shootDirection.X = -1;
+                shootDirection = new Vector2(-1, 0);
+                //shootDirection.X = -1;
             }
             if (key.IsKeyDown(Keys.Right) || gamePad.ThumbSticks.Right.X > .5)
             {
-                shootDirection.X = 1;
+                shootDirection = new Vector2(1, 0);
+                //shootDirection.X = 1;
             }
             if (key.IsKeyDown(Keys.Up) || gamePad.ThumbSticks.Right.Y > .5)
             {
-                shootDirection.Y = -1;
+                shootDirection = new Vector2(0, -1);
+                //shootDirection.Y = -1;
             }
             if (key.IsKeyDown(Keys.Down) || gamePad.ThumbSticks.Right.Y < -.5)
             {
-                shootDirection.Y = 1;
+                shootDirection = new Vector2(0, 1);
+                //shootDirection.Y = 1;
             }
         }
 
@@ -314,6 +344,64 @@ namespace TwinStick
             }
         }
 
+        private void SpawnVictims()
+        {
+            float spawnChance = .1f;
+            bool tileClear = false;
+
+            // Try to spawn a new victim if there isn't one
+            if (!victim.IsAlive && random.NextDouble() < spawnChance)
+            {
+                // Get a tile to spawn victim on
+                Tile tile = tileMap.GetTile(random.Next(TileMap.MAP_WIDTH), random.Next(TileMap.MAP_HEIGHT));
+
+                // keep getting tiles until we find one that is not solid and clear of zombies
+                while (tile.IsSolid || tileClear == false)
+                {
+                    // Get a new random tile from map
+                    tile = tileMap.GetTile(random.Next(TileMap.MAP_WIDTH), random.Next(TileMap.MAP_HEIGHT));
+                    if (!tile.IsSolid)
+                    {
+                        // if not solid, check if any zombies are colliding with this tile
+                        tileClear = true;
+                        foreach (Zombie zombie in enemies)
+                        {
+                            // get all tiles zombie is currently intersecting
+                            List<Tile> collisionTiles = tileMap.CheckTileCollsions(zombie.CollisionRect);
+                        
+                            foreach (Tile collisionTile in collisionTiles)
+                            {
+                                // check if any zombie collision tiles are the same as the tile we've chosen
+                                if (collisionTile.Position == tile.Position)
+                                {
+                                    tileClear = false;
+                                }
+                            }
+                        }
+                    }    
+                }
+
+                // found tile is not solid and clear of zombies,
+                // set victim position to tile position and toggle IsAlive
+                victim.Position = new Vector2(tile.Position.X, tile.Position.Y);
+                victim.IsAlive = true;
+            }
+        }
+
+        public void SpawnEnemies(GameTime gameTime)
+        {
+            enemySpawnElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (enemySpawnElapsed > spawnRate)
+            {
+                foreach (Vector2 spawnPoint in spawnPoints)
+                {
+                    enemies.Add(new Zombie(zombieTexture, spawnPoint));
+                }
+                // reset timer
+                enemySpawnElapsed = 0;
+            }
+        }
+
         public void UpdateBulletsAndCheckCollisions(GameTime gameTime)
         {
             // Update the bullets
@@ -331,28 +419,6 @@ namespace TwinStick
                 }
             }
         }
-
-        public void CleanupSpriteLists()
-        {
-            // Remove inactive bullets
-            for (int i = 0; i < bullets.Count; i++)
-            {
-                if (!bullets[i].IsAlive)
-                {
-                    bullets.Remove(bullets[i]);
-                }
-            }
-
-            // Remove inactive enemies
-            for (int i = 0; i < enemies.Count; i++)
-            {
-                if (!enemies[i].IsAlive)
-                {
-                    enemies.Remove(enemies[i]);
-                }
-            }
-        }
-
 
         // Check for and resolve collisions between enemies
         // if two enemies collide, push them back in opposite directions
@@ -384,18 +450,25 @@ namespace TwinStick
             }
         }
 
-        public void SpawnEnemies(GameTime gameTime)
+        public void CleanupSpriteLists()
         {
-            enemySpawnElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (enemySpawnElapsed > spawnRate)
+            // Remove inactive bullets
+            for (int i = 0; i < bullets.Count; i++)
             {
-                foreach (Vector2 spawnPoint in spawnPoints)
+                if (!bullets[i].IsAlive)
                 {
-                    enemies.Add(new Zombie(zombieTexture, spawnPoint));
+                    bullets.Remove(bullets[i]);
                 }
-                // reset timer
-                enemySpawnElapsed = 0;
             }
-        }
+
+            // Remove inactive enemies
+            for (int i = 0; i < enemies.Count; i++)
+            {
+                if (!enemies[i].IsAlive)
+                {
+                    enemies.Remove(enemies[i]);
+                }
+            }
+        }       
     }
 }

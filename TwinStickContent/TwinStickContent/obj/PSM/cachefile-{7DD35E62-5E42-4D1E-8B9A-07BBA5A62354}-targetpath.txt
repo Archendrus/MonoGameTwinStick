@@ -2,6 +2,7 @@ Content\tiles.xnb
 Content\hero.xnb
 Content\zombie.xnb
 Content\bullet.xnb
+Content\victim.xnb
 Content\tiles.png
 Content\hero.png
 Content\zombie.png

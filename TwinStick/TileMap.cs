@@ -11,8 +11,8 @@ namespace TwinStick
 {
     class TileMap
     {
-        const int MAP_HEIGHT = 15;
-        const int MAP_WIDTH = 25;
+        public static int MAP_HEIGHT = 15;
+        public static int MAP_WIDTH = 25;
         private int[,] map;
         private Tile newTile;
         private Tile[,] tiles;

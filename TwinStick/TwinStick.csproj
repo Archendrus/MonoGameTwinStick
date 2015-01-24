@@ -45,6 +45,7 @@
     <Compile Include="Sprite.cs" />
     <Compile Include="Tile.cs" />
     <Compile Include="TileMap.cs" />
+    <Compile Include="Victim.cs" />
     <Compile Include="Zombie.cs" />
   </ItemGroup>
   <ItemGroup>

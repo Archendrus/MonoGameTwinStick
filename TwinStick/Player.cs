@@ -15,7 +15,6 @@ namespace TwinStick
         
         public Vector2 Direction { get; set;}
         private float speed;
-        private KeyboardState key;
         
         public Rectangle CollisionRect
         {
