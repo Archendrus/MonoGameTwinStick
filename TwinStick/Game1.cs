@@ -202,8 +202,6 @@ namespace TwinStick
             // Check bullet collision with enemy
             UpdateBulletsAndCheckCollisions(gameTime);
 
-
-
             // Remove any enemies and bullets that are not alive
             CleanupSpriteLists();
 
@@ -270,6 +268,9 @@ namespace TwinStick
             base.Draw(gameTime);
         }
 
+
+        // Handle input from keyboard and gamepad
+        // update playerDirection and shootDirection vectors
         public void HandleInput()
         {
             // Reset direction vector to stop moving
@@ -330,6 +331,9 @@ namespace TwinStick
             }
         }
 
+
+        // Create bullets and add them to the bullet list if shooting
+        // and fireRate time has passed since last shot
         public void CreateBullets(GameTime gameTime)
         {
             // accumulate elapsed time
@@ -354,6 +358,8 @@ namespace TwinStick
             }
         }
 
+        // Spawn on a random, non-solid, non-occupied tile with a chance of
+        // spawnChance
         private void SpawnVictims()
         {
             float spawnChance = .1f;
@@ -398,6 +404,7 @@ namespace TwinStick
             }
         }
 
+        // spawn an enemy at each point in spawnPoints at spawnRate
         public void SpawnEnemies(GameTime gameTime)
         {
             enemySpawnElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -412,6 +419,7 @@ namespace TwinStick
             }
         }
 
+        // Update all bullets and check collsion with enemies
         public void UpdateBulletsAndCheckCollisions(GameTime gameTime)
         {
             // Update the bullets
@@ -460,6 +468,7 @@ namespace TwinStick
             }
         }
 
+        // Remove all inactive sprites from bullets and enemies
         public void CleanupSpriteLists()
         {
             // Remove inactive bullets
