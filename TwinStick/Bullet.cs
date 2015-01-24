@@ -23,6 +23,7 @@ namespace TwinStick
             }
         }
 
+        // Create bullet moving in direction
         public Bullet(Texture2D texture, Vector2 direction) : base(texture)
         {
             this.direction = direction;

@@ -129,6 +129,7 @@ namespace TwinStick
             {
                 for (int x = leftTile; x <= rightTile; ++x)
                 {
+                    // add tile to list to be returned
                     Tile tile = GetTile(x, y);
                     tiles.Add(tile);
                 }

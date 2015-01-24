@@ -52,6 +52,7 @@ namespace TwinStick
         float enemySpawnElapsed = 0;
         float spawnRate = 3.0f;
 
+        // Random number generator for victim spawn
         Random random;
 
         public Game1()
@@ -165,27 +166,34 @@ namespace TwinStick
             // Get input, update playerDirection and shootDirection vectors
             HandleInput();
 
+            // Spawn victims
+            SpawnVictims();
+
             // Create bullets if shooting
             CreateBullets(gameTime);
 
             // Update the player
             player.Update(gameTime, tileMap, playerDirection);
 
-            // Create enemies
-            SpawnEnemies(gameTime);
-            
-            // Spawn victims
-            SpawnVictims();
-
             // Check victim save
-            if (player.CollisionRect.Intersects(victim.CollisionRect))
+            if (victim.IsAlive && player.CollisionRect.Intersects(victim.CollisionRect))
             {
                 victim.IsAlive = false;
             }
+
+            // Create enemies
+            SpawnEnemies(gameTime);
+                     
             // Update the enemies
             for (int i = 0; i < enemies.Count; i++)
             {
-                enemies[i].Update(gameTime, tileMap, player.Position);
+                enemies[i].Update(gameTime, tileMap, player, victim);
+
+                // Check enemy collision with victim
+                if (victim.IsAlive && enemies[i].CollisionRect.Intersects(victim.CollisionRect))
+                {
+                    victim.IsAlive = false;
+                }
             }
 
             // Prevent enemies from overlapping each other
@@ -193,6 +201,8 @@ namespace TwinStick
 
             // Check bullet collision with enemy
             UpdateBulletsAndCheckCollisions(gameTime);
+
+
 
             // Remove any enemies and bullets that are not alive
             CleanupSpriteLists();
@@ -347,14 +357,14 @@ namespace TwinStick
         private void SpawnVictims()
         {
             float spawnChance = .1f;
-            bool tileClear = false;
+            
 
             // Try to spawn a new victim if there isn't one
             if (!victim.IsAlive && random.NextDouble() < spawnChance)
             {
                 // Get a tile to spawn victim on
                 Tile tile = tileMap.GetTile(random.Next(TileMap.MAP_WIDTH), random.Next(TileMap.MAP_HEIGHT));
-
+                bool tileClear = false;
                 // keep getting tiles until we find one that is not solid and clear of zombies
                 while (tile.IsSolid || tileClear == false)
                 {

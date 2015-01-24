@@ -83,6 +83,7 @@ namespace TwinStick
             }
         }
 
+        // Resolve tile collisions for axis passed in
         private void ResolveTileCollisions(TileMap map, Vector2 axis)
         {
             List<Tile> collisionTiles = map.CheckTileCollsions(CollisionRect);
@@ -92,15 +93,18 @@ namespace TwinStick
                 if (tile.IsSolid)
                 {
                     Vector2 depth;
+
+                    // Resolve collisions on the X axis
                     if (axis.X != 0)
                     {
                         depth = new Vector2(RectangleExtensions.GetHorizontalIntersectionDepth(CollisionRect, tile.BoundingRect), 0);
                     }
-                    else
+                    else // Resolve collisions on the Y axis
                     {
                         depth = new Vector2(0, RectangleExtensions.GetVerticalIntersectionDepth(CollisionRect, tile.BoundingRect));
                     }
 
+                    // move player out of tile by depth
                     Position += depth;
                 }
             }

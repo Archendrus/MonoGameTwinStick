@@ -12,6 +12,8 @@ namespace TwinStick
     class Zombie : Sprite
     {
         float speed;
+
+        // Rectangle for collision based on non-transparent area of sprite
         public Rectangle CollisionRect
         {
             get
@@ -24,38 +26,58 @@ namespace TwinStick
             }
         }
 
+        // Circle for collision centered on sprite
         public Circle CollisionCircle
         {
             get
             {
-                return new Circle(
-                    new Vector2(Position.X + (Width / 2),
-                    Position.Y + (Height / 2)),
-                    8.0f * Game1.Scale.X);
+                return new Circle(new Vector2(Center.X, Center.Y), 8.0f * Game1.Scale.X);
             }
         }
 
         public Zombie(Texture2D texture, Vector2 position)
             : base(texture, position)
         {
-            speed = 35f;
+            speed = 20f;
         }
 
         public Zombie(Texture2D texture)
             : base(texture)
         {
-            speed = 35;
+            speed = 20f;
         }
 
-        public void Update(GameTime time, TileMap map, Vector2 playerPosition)
+        public void Update(GameTime time, TileMap map, Player player, Victim victim)
         {
             float elapsed = (float)time.ElapsedGameTime.TotalSeconds;
-            Vector2 direction = playerPosition - Position;
+            Vector2 direction = Vector2.Zero;
+
+            // if there is a victim, decide which direction to move
+            if (victim.IsAlive)
+            {
+                // if victim is closer move towards victim
+                if (Vector2.Distance(Center, victim.Center) < Vector2.Distance(Center, player.Center))
+                {
+                    direction = victim.Position - Position;
+                }
+                else // move towards player
+                {
+                    direction = player.Position - Position;
+                }
+            }
+            else // no victim, move towards player
+            {
+                direction = player.Position - Position;
+            }
+            
+            // Update position and check tile collisions
             direction.Normalize();
             Position += direction * speed * elapsed;
             ResolveTileCollisions(map);
         }
 
+        // Resolve tile collsions on both axis at once
+        // using the smallest axis to determine collision side
         private void ResolveTileCollisions(TileMap map)
         {
             List<Tile> collisionTiles = map.CheckTileCollsions(CollisionRect);

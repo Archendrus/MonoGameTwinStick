@@ -14,10 +14,13 @@ namespace TwinStick
         public static int WIDTH = 16 * (int)Game1.Scale.X;
         public static int HEIGHT = 16 * (int)Game1.Scale.Y;
 
+        // Source rectangle from tile sheet
         public Rectangle SourceRectangle { get; private set; }
+
         public Vector2 Position { get; private set; }
         public bool IsSolid { get; private set; }
 
+        // Rectangle set at size of texture
         public Rectangle BoundingRect
         {
             get
@@ -26,7 +29,8 @@ namespace TwinStick
             }
         }
 
-
+        // Create new tile using texture at sourceRectangle of tile sheet,
+        // set at position, set solid state to isSolid
         public Tile(Rectangle sourceRectangle, Vector2 position, bool isSolid)
         {
             SourceRectangle = sourceRectangle;

@@ -17,7 +17,10 @@ namespace TwinStick
             this.Position = position;
             this.Radius = radius;
         }
-
+        
+        // Calulate the intersection depth of this circle with circle
+        // Zero returned if circles do not intersect
+        // depth of intersection returned if circles do intersect
         public float GetIntersectionDepth(Circle circle)
         {
             float depth = 0;

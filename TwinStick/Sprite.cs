@@ -18,8 +18,18 @@ namespace TwinStick
         public int Width { get; private set; }
         public int Height { get; private set; }
 
+        // Calculated Vector2 for center of sprite
+        public Vector2 Center
+        {
+            get
+            {
+                return new Vector2(Position.X + (Width / 2), Position.Y + (Height / 2));
+            }
+        }
+
         public bool IsAlive { get; set; }
 
+        // Rectangle set at size of texture
         public Rectangle BoundingRect
         {
             get
@@ -28,6 +38,9 @@ namespace TwinStick
             }
         }
 
+        // Create sprite with texture at position
+        // Calculate sprite dimensions based on scale
+        // set to alive on creation
         public Sprite(Texture2D texture, Vector2 position)
         {
             this.texture = texture;
@@ -38,6 +51,10 @@ namespace TwinStick
             
         }
 
+        // Create sprite with texture
+        // Calculate sprite dimensions based on scale
+        // set to alive on creation
+        // sprite will have no position and will not be drawn
         public Sprite(Texture2D texture)
         {
             this.texture = texture;
@@ -47,6 +64,7 @@ namespace TwinStick
             IsAlive = true;
         }
 
+        // Draw sprite at position at Game1.Scale
         public virtual void Draw(SpriteBatch spriteBatch)
         {
             spriteBatch.Draw(
