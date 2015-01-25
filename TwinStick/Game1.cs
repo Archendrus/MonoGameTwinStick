@@ -46,14 +46,21 @@ namespace TwinStick
         Vector2 playerDirection;
         Vector2 shootDirection;
         float shotTimerElapsed = 0;
-        float fireRate = .30f;
 
         List<Vector2> spawnPoints;
         float enemySpawnElapsed = 0;
-        float spawnRate = 3.0f;
 
         // Random number generator for victim spawn
         Random random;
+
+        // Score and surviors
+        SpriteFont font;
+        int score = 0;
+        int totalVictims;
+        int victimsSaved = 0;
+        int victimsKilled = 0;
+        RenderTarget2D victimBoardRenderTarget;
+        Rectangle victimBoardRenderTargetRect;
 
         public Game1()
             : base()
@@ -94,6 +101,11 @@ namespace TwinStick
             // Create render target at Virtual resolution
             renderTarget = new RenderTarget2D(GraphicsDevice, VirtualWidth, VirtualHeight);
 
+            // Create render target for drawing survior score board
+            victimBoardRenderTarget = new RenderTarget2D(GraphicsDevice, 256, 32);
+            // Create rectangle for draw position
+            victimBoardRenderTargetRect = new Rectangle(512, 4, 256, 24);
+
             base.Initialize();
         }
 
@@ -106,6 +118,7 @@ namespace TwinStick
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            font = Content.Load<SpriteFont>("font");
             // Temp texture to load sprites
             Texture2D temp;
 
@@ -131,16 +144,16 @@ namespace TwinStick
             spawnPoints.Add(new Vector2(centerX, 0 - (zombieTexture.Height / 2.0f)));
             spawnPoints.Add(new Vector2(centerX, VirtualHeight + (zombieTexture.Height / 2.0f)));
             
-            bulletTexture = Content.Load<Texture2D>("bullet");
-
-            // create bullet list
+            // bullets
             bullets = new List<Bullet>();
+            bulletTexture = Content.Load<Texture2D>("bullet");
 
             // Victim
             victimTexture = Content.Load<Texture2D>("victim");
             victim = new Victim(victimTexture);
             victim.IsAlive = false;
             random = new Random();
+            totalVictims = 3;
         }
 
         /// <summary>
@@ -179,6 +192,8 @@ namespace TwinStick
             if (victim.IsAlive && player.CollisionRect.Intersects(victim.CollisionRect))
             {
                 victim.IsAlive = false;
+                victimsSaved++;
+                score += 500;
             }
 
             // Create enemies
@@ -193,6 +208,7 @@ namespace TwinStick
                 if (victim.IsAlive && enemies[i].CollisionRect.Intersects(victim.CollisionRect))
                 {
                     victim.IsAlive = false;
+                    victimsKilled++;
                 }
             }
 
@@ -215,6 +231,10 @@ namespace TwinStick
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
+
+            // Draw the victim board to victimBoardRenderTarget
+            DrawVictimBoard();
+
             // Set Render to 800X480 render target
             GraphicsDevice.SetRenderTarget(renderTarget);
             GraphicsDevice.Clear(Color.CornflowerBlue);
@@ -228,6 +248,9 @@ namespace TwinStick
 
             // draw map 
             tileMap.Draw(spriteBatch);
+
+            // Draw score
+            spriteBatch.DrawString(font, score.ToString("D8"), new Vector2(32, 0), Color.PaleGreen);
 
             // draw all bullets
             for (int i = 0; i < bullets.Count; i++ )
@@ -248,6 +271,8 @@ namespace TwinStick
             {
                 enemies[i].Draw(spriteBatch);
             }
+
+            spriteBatch.Draw(victimBoardRenderTarget, victimBoardRenderTargetRect, Color.White);
             
             spriteBatch.End();
 
@@ -266,6 +291,35 @@ namespace TwinStick
             spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+
+        // Draw victim board to a render target to 
+        // to draw the whole thing to the screen at once
+        private void DrawVictimBoard()
+        {
+            // Set render target to the victim board render target
+            GraphicsDevice.SetRenderTarget(victimBoardRenderTarget);
+
+            // Clear with transparent
+            GraphicsDevice.Clear(Color.Transparent);
+
+            // Draw with point clamp filtering
+            spriteBatch.Begin(
+                SpriteSortMode.Deferred,
+                BlendState.AlphaBlend,
+                SamplerState.PointClamp,
+                DepthStencilState.None,
+                RasterizerState.CullCounterClockwise);
+
+            // Create a sprite and draw a survivor for each survivor left
+            for (int i = 0; i < totalVictims; i++)
+            {
+                Sprite sprite = new Sprite(victimTexture);
+                sprite.Position = new Vector2(i * sprite.Width, 0);
+                sprite.Draw(spriteBatch);
+            }
+            spriteBatch.End();
         }
 
 
@@ -336,6 +390,7 @@ namespace TwinStick
         // and fireRate time has passed since last shot
         public void CreateBullets(GameTime gameTime)
         {
+            float fireRate = .30f;
             // accumulate elapsed time
             shotTimerElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
             // if input
@@ -362,9 +417,8 @@ namespace TwinStick
         // spawnChance
         private void SpawnVictims()
         {
-            float spawnChance = .1f;
+            float spawnChance = .0019f;
             
-
             // Try to spawn a new victim if there isn't one
             if (!victim.IsAlive && random.NextDouble() < spawnChance)
             {
@@ -407,6 +461,7 @@ namespace TwinStick
         // spawn an enemy at each point in spawnPoints at spawnRate
         public void SpawnEnemies(GameTime gameTime)
         {
+            float spawnRate = 3.0f;
             enemySpawnElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (enemySpawnElapsed > spawnRate)
             {
@@ -433,6 +488,7 @@ namespace TwinStick
                     {
                         bullets[i].IsAlive = false;
                         enemies[j].IsAlive = false;
+                        score += 100;
                     }
                 }
             }

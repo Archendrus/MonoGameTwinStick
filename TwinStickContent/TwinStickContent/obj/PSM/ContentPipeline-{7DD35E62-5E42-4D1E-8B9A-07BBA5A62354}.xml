@@ -46,6 +46,15 @@
       <Output>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\victim.xnb</Output>
       <Time>2015-01-24T12:50:26.7357537-05:00</Time>
     </Item>
+    <Item>
+      <Source>font.bmp</Source>
+      <Name>font</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>FontTextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\font.xnb</Output>
+      <Time>2015-01-24T15:50:14.4626311-05:00</Time>
+    </Item>
     <BuildSuccessful>true</BuildSuccessful>
     <Settings>
       <ContentProjectGUID>{7DD35E62-5E42-4D1E-8B9A-07BBA5A62354}</ContentProjectGUID>

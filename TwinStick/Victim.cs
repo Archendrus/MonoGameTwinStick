@@ -11,6 +11,8 @@ namespace TwinStick
 {
     class Victim : Sprite
     {
+
+        // Rectangle for collision based on non-transparent area of sprite
         public Rectangle CollisionRect
         {
             get
