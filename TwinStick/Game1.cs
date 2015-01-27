@@ -63,7 +63,8 @@ namespace TwinStick
 
         List<Vector2> spawnPoints;
         float enemySpawnElapsed = 0;
-        float enemySpawnRate = 3.10f;
+        float enemySpawnRate;
+        float enemySpeed;
 
         // Random number generator for victim spawn
         Random random;
@@ -73,6 +74,7 @@ namespace TwinStick
         int score = 0;
         int totalVictims;
         int currentVictim;
+        int saved;
         Sprite[] victims;
         Color[] victimColor;
         Color victimSave, victimKilled;
@@ -123,6 +125,16 @@ namespace TwinStick
             // Create rectangle for draw position
             victimBoardRenderTargetRect = new Rectangle(512, 4, 256, 24);
 
+            // Initialize values for messages
+            messageColor = new Color(32, 92, 32);
+            controlMessages = new List<String>();
+            controlMessages.Add("WASD / LEFT STICK TO MOVE");
+            controlMessages.Add("ARROWS / RIGHT STICK TO SHOOT");
+            controlMessages.Add("SHOOT ZOMBIES!\nSAVE SURVIORS!");
+
+            enemySpawnRate = 3.10f;
+            enemySpeed = 20f;
+
             currentState = GameState.TitleScreen;
 
             base.Initialize();
@@ -140,12 +152,11 @@ namespace TwinStick
             // Font and message rendering
             scoreFont = Content.Load<SpriteFont>("font");
             textFont = Content.Load<SpriteFont>("textFont");
-            messageColor = new Color(32, 92, 32);
-            controlMessages = new List<String>();
-            controlMessages.Add("WASD / LEFT STICK TO MOVE");
-            controlMessages.Add("ARROWS / RIGHT STICK TO SHOOT");
-            controlMessages.Add("SHOOT ZOMBIES!\nSAVE SURVIORS!");
-            
+
+            // initialize colors for tinting victim board sprites
+            victimSave = new Color(92, 156, 92);
+            victimKilled = new Color(208, 112, 112);
+               
             // Temp texture to load sprites
             Texture2D temp;
 
@@ -156,21 +167,12 @@ namespace TwinStick
             // Create player
             temp = Content.Load<Texture2D>("hero");
             player = new Player(temp);
-            player.Position = new Vector2((VirtualWidth / 2) - (player.Width / 2), (VirtualHeight / 2) - (player.Height / 2));
+            
 
             // Create zombies and zombie list
             zombieTexture = Content.Load<Texture2D>("zombie");
             enemies = new List<Zombie>();
-
-            // Initialize spawn points
-            spawnPoints = new List<Vector2>();
-            float centerY = (VirtualHeight / 2.0f) - (zombieTexture.Height / 2.0f);
-            float centerX = (VirtualWidth / 2.0f) - (zombieTexture.Width / 2.0f);
-            spawnPoints.Add(new Vector2(0 - (zombieTexture.Width / 2.0f), centerY));
-            spawnPoints.Add(new Vector2(VirtualWidth + (zombieTexture.Width / 2.0f), centerY));
-            spawnPoints.Add(new Vector2(centerX, 0 - (zombieTexture.Height / 2.0f)));
-            spawnPoints.Add(new Vector2(centerX, VirtualHeight + (zombieTexture.Height / 2.0f)));
-            
+           
             // bullets
             bullets = new List<Bullet>();
             bulletTexture = Content.Load<Texture2D>("bullet");
@@ -180,32 +182,16 @@ namespace TwinStick
             
             // Create one victim sprite to be used for all victims
             victim = new Victim(victimTexture);
-            victim.IsAlive = false;
-
+            
             // RNG for victim spawn
             random = new Random();
 
-            // Set values for victims
-            totalVictims = 8;
-            currentVictim = 0;
-
-            // initialize colors for tinting victim board sprites
-            victimSave = new Color(92, 156, 92);
-            victimKilled = new Color(208, 112, 112);
-
-            // build parallel arrays for victim board sprites and color tints
-            victims = new Sprite[totalVictims];
-            victimColor = new Color[totalVictims];
-            for (int i = 0; i < victims.Length; i++)
-            {
-                Sprite sprite = new Sprite(victimTexture);
-                sprite.Position = new Vector2(i * sprite.Width, 0);
-                victims[i] = sprite;
-                victimColor[i] = Color.White;
-            }
-
+            // Start at level 0, game will increment to 1 before starting
             currentLevel = 0;
-            levelChanged = false;
+
+            // Reset values for start of game
+            ResetGame();
+         
         }
 
         /// <summary>
@@ -299,6 +285,7 @@ namespace TwinStick
             // draw player over bullets
             player.Draw(spriteBatch);
 
+            // Draw victim if one is spawned
             if (victim.IsAlive)
             {
                 victim.Draw(spriteBatch);
@@ -395,15 +382,25 @@ namespace TwinStick
             {
                 currentLevel++;
                 enemySpawnRate -= 0.10f;
+
+
+                // increase zombie speed every 2 levels
+                if (currentLevel % 2 == 0)
+                {
+                    enemySpeed += .2f;
+                }
+
                 levelChanged = true;
             }
             
             // Show level message for two seconds
+            // then change to game state
             message = "LEVEL " + currentLevel;
             messageTimerElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (messageTimerElapsed > 2.0f)
             {
                 message = String.Empty;
+                messageTimerElapsed = 0;
                 currentState = GameState.Game;
             }
         }
@@ -428,6 +425,7 @@ namespace TwinStick
             {
                 victim.IsAlive = false;
                 score += 500;
+                saved++;
                 UpdateVictimBoard(victimSave);
             }
 
@@ -455,6 +453,21 @@ namespace TwinStick
 
             // Remove any enemies and bullets that are not alive
             CleanupSpriteLists();
+
+
+            // Check win/lose conditions
+            if (currentVictim == totalVictims)
+            {
+                if (saved >= totalVictims / 2)
+                {
+                    ResetGame();
+                    currentState = GameState.NextLevel;
+                }
+            }
+
+            Console.WriteLine("spawn_rate: " + enemySpawnRate);
+            Console.WriteLine("enemy_speed: " + enemySpeed);
+            
         }
 
         // Handle input from keyboard and gamepad
@@ -514,7 +527,6 @@ namespace TwinStick
                 //shootDirection.Y = 1;
             }
         }
-
 
         // Create bullets and add them to the bullet list if shooting
         // and fireRate time has passed since last shot
@@ -597,7 +609,7 @@ namespace TwinStick
             {
                 foreach (Vector2 spawnPoint in spawnPoints)
                 {
-                    enemies.Add(new Zombie(zombieTexture, spawnPoint));
+                    enemies.Add(new Zombie(zombieTexture, spawnPoint, enemySpeed));
                 }
                 // reset timer
                 enemySpawnElapsed = 0;
@@ -712,6 +724,44 @@ namespace TwinStick
                 victims[i].Draw(spriteBatch, victimColor[i]);
             }
             spriteBatch.End();
+        }
+
+        public void ResetGame()
+        {
+            player.Position = new Vector2((VirtualWidth / 2) - (player.Width / 2), (VirtualHeight / 2) - (player.Height / 2));
+
+            // Initialize spawn points
+            spawnPoints = new List<Vector2>();
+            float centerY = (VirtualHeight / 2.0f) - (zombieTexture.Height / 2.0f);
+            float centerX = (VirtualWidth / 2.0f) - (zombieTexture.Width / 2.0f);
+            spawnPoints.Add(new Vector2(0 - (zombieTexture.Width / 2.0f), centerY));
+            spawnPoints.Add(new Vector2(VirtualWidth + (zombieTexture.Width / 2.0f), centerY));
+            spawnPoints.Add(new Vector2(centerX, 0 - (zombieTexture.Height / 2.0f)));
+            spawnPoints.Add(new Vector2(centerX, VirtualHeight + (zombieTexture.Height / 2.0f)));
+
+            // Reset victim
+            victim.IsAlive = false;
+            totalVictims = 8;
+            currentVictim = 0;
+            saved = 0;
+
+            // build parallel arrays for victim board sprites and color tints
+            victims = new Sprite[totalVictims];
+            victimColor = new Color[totalVictims];
+            for (int i = 0; i < victims.Length; i++)
+            {
+                Sprite sprite = new Sprite(victimTexture);
+                sprite.Position = new Vector2(i * sprite.Width, 0);
+                victims[i] = sprite;
+                victimColor[i] = Color.White;
+            }
+
+            // empty sprite lists
+            bullets.Clear();
+            enemies.Clear();
+
+            // reset level changed flag
+            levelChanged = false;
         }
     }
 }

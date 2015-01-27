@@ -35,16 +35,16 @@ namespace TwinStick
             }
         }
 
-        public Zombie(Texture2D texture, Vector2 position)
+        public Zombie(Texture2D texture, Vector2 position, float speed)
             : base(texture, position)
         {
-            speed = 20f;
+            this.speed = speed;
         }
 
-        public Zombie(Texture2D texture)
+        public Zombie(Texture2D texture, float speed)
             : base(texture)
         {
-            speed = 20f;
+            this.speed = speed;
         }
 
         public void Update(GameTime time, TileMap map, Player player, Victim victim)
