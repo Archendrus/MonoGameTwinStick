@@ -417,7 +417,7 @@ namespace TwinStick
         // spawnChance
         private void SpawnVictims()
         {
-            float spawnChance = .0019f;
+            float spawnChance = .003f;
             
             // Try to spawn a new victim if there isn't one
             if (!victim.IsAlive && random.NextDouble() < spawnChance)
