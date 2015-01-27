@@ -78,6 +78,21 @@ namespace TwinStick
                 SpriteEffects.None,
                 0.0f);
         }
+
+        // Draw sprite at position, tint with color
+        public virtual void Draw(SpriteBatch spriteBatch, Color color)
+        {
+            spriteBatch.Draw(
+                texture,
+                new Vector2((int)Position.X, (int)Position.Y),
+                null,
+                color,
+                0.0f,
+                Vector2.Zero,
+                Game1.Scale,
+                SpriteEffects.None,
+                0.0f);
+        }
         
     }
 }

@@ -57,8 +57,10 @@ namespace TwinStick
         SpriteFont font;
         int score = 0;
         int totalVictims;
-        int victimsSaved = 0;
-        int victimsKilled = 0;
+        int currentVictim;
+        Sprite[] victims;
+        Color[] victimColor;
+        Color victimSave, victimKilled;
         RenderTarget2D victimBoardRenderTarget;
         Rectangle victimBoardRenderTargetRect;
 
@@ -150,10 +152,32 @@ namespace TwinStick
 
             // Victim
             victimTexture = Content.Load<Texture2D>("victim");
+            
+            // Create one victim sprite to be used for all victims
             victim = new Victim(victimTexture);
             victim.IsAlive = false;
+
+            // RNG for victim spawn
             random = new Random();
-            totalVictims = 3;
+
+            // Set values for victims
+            totalVictims = 8;
+            currentVictim = 0;
+
+            // initialize colors for tinting victim board sprites
+            victimSave = new Color(92, 156, 92);
+            victimKilled = new Color(208, 112, 112);
+
+            // build parallel arrays for victim board sprites and color tints
+            victims = new Sprite[totalVictims];
+            victimColor = new Color[totalVictims];
+            for (int i = 0; i < victims.Length; i++)
+            {
+                Sprite sprite = new Sprite(victimTexture);
+                sprite.Position = new Vector2(i * sprite.Width, 0);
+                victims[i] = sprite;
+                victimColor[i] = Color.White;
+            }
         }
 
         /// <summary>
@@ -192,8 +216,8 @@ namespace TwinStick
             if (victim.IsAlive && player.CollisionRect.Intersects(victim.CollisionRect))
             {
                 victim.IsAlive = false;
-                victimsSaved++;
                 score += 500;
+                UpdateVictimBoard(victimSave);
             }
 
             // Create enemies
@@ -208,7 +232,7 @@ namespace TwinStick
                 if (victim.IsAlive && enemies[i].CollisionRect.Intersects(victim.CollisionRect))
                 {
                     victim.IsAlive = false;
-                    victimsKilled++;
+                    UpdateVictimBoard(victimKilled);                 
                 }
             }
 
@@ -292,36 +316,6 @@ namespace TwinStick
 
             base.Draw(gameTime);
         }
-
-
-        // Draw victim board to a render target to 
-        // to draw the whole thing to the screen at once
-        private void DrawVictimBoard()
-        {
-            // Set render target to the victim board render target
-            GraphicsDevice.SetRenderTarget(victimBoardRenderTarget);
-
-            // Clear with transparent
-            GraphicsDevice.Clear(Color.Transparent);
-
-            // Draw with point clamp filtering
-            spriteBatch.Begin(
-                SpriteSortMode.Deferred,
-                BlendState.AlphaBlend,
-                SamplerState.PointClamp,
-                DepthStencilState.None,
-                RasterizerState.CullCounterClockwise);
-
-            // Create a sprite and draw a survivor for each survivor left
-            for (int i = 0; i < totalVictims; i++)
-            {
-                Sprite sprite = new Sprite(victimTexture);
-                sprite.Position = new Vector2(i * sprite.Width, 0);
-                sprite.Draw(spriteBatch);
-            }
-            spriteBatch.End();
-        }
-
 
         // Handle input from keyboard and gamepad
         // update playerDirection and shootDirection vectors
@@ -544,6 +538,44 @@ namespace TwinStick
                     enemies.Remove(enemies[i]);
                 }
             }
-        }       
+        }
+
+        // Update the victim board tinting victim sprites with color
+        public void UpdateVictimBoard(Color color)
+        {
+            if (currentVictim < victims.Length)
+            {
+                // tint sprite, increment current victim
+                victimColor[currentVictim] = color;
+                currentVictim++;
+            }
+        }
+
+        // Draw victim board to a render target to 
+        // to draw the whole thing to the screen at once
+        private void DrawVictimBoard()
+        {
+            // Set render target to the victim board render target
+            GraphicsDevice.SetRenderTarget(victimBoardRenderTarget);
+
+            // Clear with transparent
+            GraphicsDevice.Clear(Color.Transparent);
+
+            // Draw with point clamp filtering
+            spriteBatch.Begin(
+                SpriteSortMode.Deferred,
+                BlendState.AlphaBlend,
+                SamplerState.PointClamp,
+                DepthStencilState.None,
+                RasterizerState.CullCounterClockwise);
+
+            // Create a sprite and draw a survivor for each survivor left
+            for (int i = 0; i < victims.Length; i++)
+            {
+                // draw victim scoreboard sprites with color tint
+                victims[i].Draw(spriteBatch, victimColor[i]);
+            }
+            spriteBatch.End();
+        }
     }
 }
