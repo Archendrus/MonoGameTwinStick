@@ -24,6 +24,12 @@ namespace TwinStick
         public static Rectangle screenRectangle;
         public static Rectangle virtualScreenRect;
 
+        // Game states
+        enum GameState { TitleScreen, Game, NextLevel, Controls };
+        GameState currentState;
+        int currentLevel;
+        bool levelChanged;
+
         // Game objects
         TileMap tileMap;
         Player player;
@@ -42,6 +48,14 @@ namespace TwinStick
         Texture2D zombieTexture;
         Texture2D victimTexture;
 
+        // Text and messages
+        SpriteFont textFont;
+        String message;
+        List<String> controlMessages;
+        Color messageColor;
+        float messageTimerElapsed = 0;
+        int currentControlMessage = 0;
+
         // Player/bullet update args
         Vector2 playerDirection;
         Vector2 shootDirection;
@@ -49,12 +63,13 @@ namespace TwinStick
 
         List<Vector2> spawnPoints;
         float enemySpawnElapsed = 0;
+        float enemySpawnRate = 3.10f;
 
         // Random number generator for victim spawn
         Random random;
 
         // Score and surviors
-        SpriteFont font;
+        SpriteFont scoreFont;
         int score = 0;
         int totalVictims;
         int currentVictim;
@@ -108,6 +123,8 @@ namespace TwinStick
             // Create rectangle for draw position
             victimBoardRenderTargetRect = new Rectangle(512, 4, 256, 24);
 
+            currentState = GameState.TitleScreen;
+
             base.Initialize();
         }
 
@@ -120,7 +137,15 @@ namespace TwinStick
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            font = Content.Load<SpriteFont>("font");
+            // Font and message rendering
+            scoreFont = Content.Load<SpriteFont>("font");
+            textFont = Content.Load<SpriteFont>("textFont");
+            messageColor = new Color(32, 92, 32);
+            controlMessages = new List<String>();
+            controlMessages.Add("WASD / LEFT STICK TO MOVE");
+            controlMessages.Add("ARROWS / RIGHT STICK TO SHOOT");
+            controlMessages.Add("SHOOT ZOMBIES!\nSAVE SURVIORS!");
+            
             // Temp texture to load sprites
             Texture2D temp;
 
@@ -178,6 +203,9 @@ namespace TwinStick
                 victims[i] = sprite;
                 victimColor[i] = Color.White;
             }
+
+            currentLevel = 0;
+            levelChanged = false;
         }
 
         /// <summary>
@@ -200,69 +228,55 @@ namespace TwinStick
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // Get input, update playerDirection and shootDirection vectors
-            HandleInput();
+            // Get keyboard and gamepad states
+            key = Keyboard.GetState();
+            gamePad = GamePad.GetState(PlayerIndex.One);
 
-            // Spawn victims
-            SpawnVictims();
-
-            // Create bullets if shooting
-            CreateBullets(gameTime);
-
-            // Update the player
-            player.Update(gameTime, tileMap, playerDirection);
-
-            // Check victim save
-            if (victim.IsAlive && player.CollisionRect.Intersects(victim.CollisionRect))
+            switch (currentState)
             {
-                victim.IsAlive = false;
-                score += 500;
-                UpdateVictimBoard(victimSave);
-            }
-
-            // Create enemies
-            SpawnEnemies(gameTime);
-                     
-            // Update the enemies
-            for (int i = 0; i < enemies.Count; i++)
-            {
-                enemies[i].Update(gameTime, tileMap, player, victim);
-
-                // Check enemy collision with victim
-                if (victim.IsAlive && enemies[i].CollisionRect.Intersects(victim.CollisionRect))
+                case GameState.TitleScreen:
                 {
-                    victim.IsAlive = false;
-                    UpdateVictimBoard(victimKilled);                 
+                    TitleScreenUpdate(gameTime);
+                    break;
                 }
+                case GameState.Controls:
+                {
+                    ControlsScreenUpdate(gameTime);
+                    break;
+                }
+                case GameState.NextLevel:
+                {
+                    ChangeLevel(gameTime);
+                    break;
+                }
+                case GameState.Game:
+                {
+                    GameStateUpdate(gameTime);
+                    break;
+                }
+
             }
-
-            // Prevent enemies from overlapping each other
-            ResolveEnemyCollision();
-
-            // Check bullet collision with enemy
-            UpdateBulletsAndCheckCollisions(gameTime);
-
-            // Remove any enemies and bullets that are not alive
-            CleanupSpriteLists();
-
+                
             base.Update(gameTime);
         }
-
-        
+      
         /// <summary>
         /// This is called when the game should draw itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-
             // Draw the victim board to victimBoardRenderTarget
             DrawVictimBoard();
 
             // Set Render to 800X480 render target
             GraphicsDevice.SetRenderTarget(renderTarget);
             GraphicsDevice.Clear(Color.CornflowerBlue);
-       
+            
+
+            // ******************************************************
+            // Drawing to render target at virtual resolution
+            // *******************************************************
             spriteBatch.Begin(
                 SpriteSortMode.Deferred,
                 BlendState.AlphaBlend,
@@ -274,7 +288,7 @@ namespace TwinStick
             tileMap.Draw(spriteBatch);
 
             // Draw score
-            spriteBatch.DrawString(font, score.ToString("D8"), new Vector2(32, 0), Color.PaleGreen);
+            spriteBatch.DrawString(scoreFont, score.ToString("D8"), new Vector2(32, 0), Color.PaleGreen);
 
             // draw all bullets
             for (int i = 0; i < bullets.Count; i++ )
@@ -296,10 +310,22 @@ namespace TwinStick
                 enemies[i].Draw(spriteBatch);
             }
 
+            // draw the victim scoreboard
             spriteBatch.Draw(victimBoardRenderTarget, victimBoardRenderTargetRect, Color.White);
+
+            // Draw any messages centered on the screen
+            if (message != String.Empty)
+            {
+                Vector2 textSize = textFont.MeasureString(message);
+                Vector2 drawPos = new Vector2((VirtualWidth / 2) - (textSize.X / 2), (VirtualHeight / 2) - (textSize.Y));
+                spriteBatch.DrawString(textFont, message, drawPos, messageColor);
+            }
             
             spriteBatch.End();
 
+            // ***********************************************************************
+            // Drawing render target to screen
+            // **********************************************************************
 
             // Set back to screen, scale render target up and draw to screen
             GraphicsDevice.SetRenderTarget(null);
@@ -317,16 +343,126 @@ namespace TwinStick
             base.Draw(gameTime);
         }
 
+
+        // Update function for the title screen state.
+        // Displays Title until start or enter is pressed
+        private void TitleScreenUpdate(GameTime gameTime)
+        {
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+                Exit();
+
+            // Show title screen message
+            message = "ZOMBIES 2600\n\n PRESS START";
+
+            // Change state to controls screen if enter or start pressed
+            if (key.IsKeyDown(Keys.Enter) || gamePad.Buttons.Start == ButtonState.Pressed)
+            {
+                currentState = GameState.Controls;
+                message = String.Empty;
+            }
+        }
+
+        // Update function for the controls screen
+        // Shows all messages in list controlMessages with a 2sec delay between
+        // begins the game when all messages have been shows
+        private void ControlsScreenUpdate(GameTime gameTime)
+        {
+            // get current message
+            message = controlMessages[currentControlMessage];
+
+            // total elapsed time since last message
+            messageTimerElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (messageTimerElapsed > 2.0f)
+            {
+                // increment the message, reset the timer
+                currentControlMessage++;
+                messageTimerElapsed = 0;
+
+                // all messages shown, set message to String.Empty to stop drawing
+                // change state to game state
+                if (currentControlMessage > controlMessages.Count - 1)
+                {
+                    message = String.Empty;
+                    currentState = GameState.NextLevel;
+                }
+            }
+        }
+
+        public void ChangeLevel(GameTime gameTime)
+        {
+            // Change level and level values once
+            if (!levelChanged)
+            {
+                currentLevel++;
+                enemySpawnRate -= 0.10f;
+                levelChanged = true;
+            }
+            
+            // Show level message for two seconds
+            message = "LEVEL " + currentLevel;
+            messageTimerElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (messageTimerElapsed > 2.0f)
+            {
+                message = String.Empty;
+                currentState = GameState.Game;
+            }
+        }
+
+        // Update function for the main game state
+        public void GameStateUpdate(GameTime gameTime)
+        {
+            // Get input, update playerDirection and shootDirection vectors
+            GameStateHandleInput();
+
+            // Spawn victims
+            SpawnVictims();
+
+            // Create bullets if shooting
+            CreateBullets(gameTime);
+
+            // Update the player
+            player.Update(gameTime, tileMap, playerDirection);
+
+            // Check victim save
+            if (victim.IsAlive && player.CollisionRect.Intersects(victim.CollisionRect))
+            {
+                victim.IsAlive = false;
+                score += 500;
+                UpdateVictimBoard(victimSave);
+            }
+
+            // Create enemies
+            SpawnEnemies(gameTime);
+
+            // Update the enemies
+            for (int i = 0; i < enemies.Count; i++)
+            {
+                enemies[i].Update(gameTime, tileMap, player, victim);
+
+                // Check enemy collision with victim
+                if (victim.IsAlive && enemies[i].CollisionRect.Intersects(victim.CollisionRect))
+                {
+                    victim.IsAlive = false;
+                    UpdateVictimBoard(victimKilled);
+                }
+            }
+
+            // Prevent enemies from overlapping each other
+            ResolveEnemyCollision();
+
+            // Check bullet collision with enemy
+            UpdateBulletsAndCheckCollisions(gameTime);
+
+            // Remove any enemies and bullets that are not alive
+            CleanupSpriteLists();
+        }
+
         // Handle input from keyboard and gamepad
         // update playerDirection and shootDirection vectors
-        public void HandleInput()
+        public void GameStateHandleInput()
         {
             // Reset direction vector to stop moving
             playerDirection = Vector2.Zero;
-
-            // Get keyboard and gamepad states
-            key = Keyboard.GetState();
-            gamePad = GamePad.GetState(PlayerIndex.One);
 
             // Handle movement input
             // Set x,y values independently to allow for diagonal movement
@@ -455,9 +591,9 @@ namespace TwinStick
         // spawn an enemy at each point in spawnPoints at spawnRate
         public void SpawnEnemies(GameTime gameTime)
         {
-            float spawnRate = 3.0f;
+            //float spawnRate = 3.0f;
             enemySpawnElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (enemySpawnElapsed > spawnRate)
+            if (enemySpawnElapsed > enemySpawnRate)
             {
                 foreach (Vector2 spawnPoint in spawnPoints)
                 {

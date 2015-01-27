@@ -55,6 +55,15 @@
       <Output>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\font.xnb</Output>
       <Time>2015-01-24T15:50:14.4626311-05:00</Time>
     </Item>
+    <Item>
+      <Source>textFont.bmp</Source>
+      <Name>textFont</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>FontTextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\textFont.xnb</Output>
+      <Time>2015-01-27T14:26:15.6681861-05:00</Time>
+    </Item>
     <BuildSuccessful>true</BuildSuccessful>
     <Settings>
       <ContentProjectGUID>{7DD35E62-5E42-4D1E-8B9A-07BBA5A62354}</ContentProjectGUID>

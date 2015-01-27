@@ -33,4 +33,5 @@ C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickConte
 C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\bullet.xnb
 C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\victim.xnb
 C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\font.xnb
+C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\textFont.xnb
 C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\obj\PSM\TwinStickContent.csprojResolveAssemblyReference.cache
