@@ -163,9 +163,10 @@ namespace TwinStick
             // Create zombies and zombie list
             zombieTexture = Content.Load<Texture2D>("zombie");
             enemyManager = new EnemyManager(zombieTexture, virtualScreenRect, Scale);
+            enemyManager.EnemySpawnRate = 4.20f;
+            enemyManager.EnemySpeed = 15f;
            
             // bullets
-            //bullets = new List<Bullet>();
             bulletTexture = Content.Load<Texture2D>("bullet");
             bulletManager = new BulletManager(bulletTexture, Scale);
 
@@ -363,12 +364,12 @@ namespace TwinStick
             if (!levelChanged)
             {
                 currentLevel++;
-                //enemySpawnRate -= 0.10f;
+                enemyManager.EnemySpawnRate -= 0.20f;
 
                 // increase zombie speed every 2 levels
                 if (currentLevel % 2 == 0)
                 {
-                    //enemySpeed += .2f;
+                    enemyManager.EnemySpeed += 1f;
                 }
 
                 levelChanged = true;
@@ -411,6 +412,9 @@ namespace TwinStick
             // Update enemy and bullet managers
             enemyManager.Update(gameTime, player, tileMap, victim);
             bulletManager.Update(gameTime, player, tileMap, shootDirection, virtualScreenRect);
+
+            Console.WriteLine(enemyManager.EnemySpawnRate);
+            Console.WriteLine(enemyManager.EnemySpeed);
 
             // Check bullet collision with enemy
             UpdateBulletsAndCheckCollisions(gameTime);
@@ -601,8 +605,8 @@ namespace TwinStick
         public void ResetGame()
         {
             // Move player to center
-            player.Position = new Vector2((VirtualWidth / 2) - (player.Width / 2), (VirtualHeight / 2) - (player.Height / 2));
-
+            //player.Position = new Vector2((VirtualWidth / 2) - (player.Width / 2), (VirtualHeight / 2) - (player.Height / 2));
+            player.Position = new Vector2(200f, 200f);
             // Reset victim
             victim.IsAlive = false;
             totalVictims = 8;

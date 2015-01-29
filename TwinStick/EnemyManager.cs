@@ -11,23 +11,56 @@ namespace TwinStick
 {
     class EnemyManager
     {
-        public List<Zombie> Enemies { get; private set;}
+        public List<Zombie> Enemies { get; private set; }
+        private float _enemySpawnRate;
+        private float _enemySpeed;
+        public float EnemySpawnRate 
+        {
+            get
+            {
+                return _enemySpawnRate;
+            }
+            
+            set
+            {
+                _enemySpawnRate = value;
+                if (_enemySpawnRate < 1.20f)
+                {
+                    _enemySpawnRate = 1.20f;
+                }
+            } 
+        }
+
+        public float EnemySpeed 
+        { 
+            get
+            {
+                return _enemySpeed;
+            }
+ 
+            set
+            {
+                _enemySpeed = value;
+                if (_enemySpeed > 32f)
+                {
+                    _enemySpeed = 32f;
+                }
+            }
+        }
+
         private Texture2D zombieTexture;
-
-        List<Vector2> spawnPoints;
-        float enemySpawnElapsed;
-        float enemySpawnRate;
-        float enemySpeed;
-
-        Vector2 scale;
+        private List<Vector2> spawnPoints;
+        private float enemySpawnElapsed;
+        
+        private Vector2 scale;
 
         public EnemyManager(Texture2D zombieTexture, Rectangle virtualScreenRect, Vector2 scale)
         {
             Enemies = new List<Zombie>();
             this.zombieTexture = zombieTexture;
             enemySpawnElapsed = 0;
-            enemySpawnRate = 3.10f;
-            enemySpeed = 20f;
+            EnemySpawnRate = 3.10f;
+            EnemySpeed = 20f;
             this.scale = scale;
 
             InitSpawnPoints(virtualScreenRect);
@@ -72,11 +105,11 @@ namespace TwinStick
         private void SpawnEnemies(GameTime gameTime)
         {
             enemySpawnElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (enemySpawnElapsed > enemySpawnRate)
+            if (enemySpawnElapsed > EnemySpawnRate)
             {
                 foreach (Vector2 spawnPoint in spawnPoints)
                 {
-                    Enemies.Add(new Zombie(zombieTexture, spawnPoint, enemySpeed, scale));
+                    Enemies.Add(new Zombie(zombieTexture, spawnPoint, EnemySpeed, scale));
                 }
                 // reset timer
                 enemySpawnElapsed = 0;
