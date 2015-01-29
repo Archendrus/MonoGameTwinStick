@@ -5,10 +5,6 @@ C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickConte
 C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\victim.xnb
 C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\font.xnb
 C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\textFont.xnb
-C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\tiles.png
-C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\hero.png
-C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\zombie.png
 C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\bin\Windows\IgnoreMe.dll
 C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\obj\Windows\Microsoft.Xna.Framework.RuntimeProfile.txt
 C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\obj\Windows\IgnoreMe.dll
-C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\obj\Windows\TwinStickContent.csprojResolveAssemblyReference.cache

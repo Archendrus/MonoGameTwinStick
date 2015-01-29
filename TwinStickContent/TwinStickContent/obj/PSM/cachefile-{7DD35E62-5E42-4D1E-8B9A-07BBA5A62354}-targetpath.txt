@@ -5,6 +5,3 @@ Content\bullet.xnb
 Content\victim.xnb
 Content\font.xnb
 Content\textFont.xnb
-Content\tiles.png
-Content\hero.png
-Content\zombie.png
