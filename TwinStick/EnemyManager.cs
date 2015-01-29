@@ -21,8 +21,6 @@ namespace TwinStick
 
         Vector2 scale;
 
-        Rectangle virtualScreenRect;
-
         public EnemyManager(Texture2D zombieTexture, Rectangle virtualScreenRect, Vector2 scale)
         {
             Enemies = new List<Zombie>();
@@ -30,10 +28,9 @@ namespace TwinStick
             enemySpawnElapsed = 0;
             enemySpawnRate = 3.10f;
             enemySpeed = 20f;
-            this.virtualScreenRect = virtualScreenRect;
             this.scale = scale;
 
-            InitSpawnPoints();
+            InitSpawnPoints(virtualScreenRect);
         }
 
         public void Update(GameTime gameTime, Player player, TileMap tileMap, Victim victim)
@@ -59,7 +56,7 @@ namespace TwinStick
             }
         }
 
-        private void InitSpawnPoints()
+        private void InitSpawnPoints(Rectangle virtualScreenRect)
         {
             // Initialize spawn points
             spawnPoints = new List<Vector2>();
@@ -132,6 +129,11 @@ namespace TwinStick
                     Enemies.Remove(Enemies[i]);
                 }
             }
+        }
+
+        public void Reset()
+        {
+            Enemies.Clear();
         }
     }
 }

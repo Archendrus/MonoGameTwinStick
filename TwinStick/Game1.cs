@@ -22,7 +22,7 @@ namespace TwinStick
         int VirtualHeight = 480;
         Vector2 Scale;     
         Rectangle screenRectangle;
-        public static Rectangle virtualScreenRect;
+        Rectangle virtualScreenRect;
 
         // Game states
         enum GameState { TitleScreen, Game, NextLevel, Controls };
@@ -167,7 +167,7 @@ namespace TwinStick
             // bullets
             //bullets = new List<Bullet>();
             bulletTexture = Content.Load<Texture2D>("bullet");
-            bulletManager = new BulletManager(bulletTexture, virtualScreenRect, Scale);
+            bulletManager = new BulletManager(bulletTexture, Scale);
 
             // Victim
             victimTexture = Content.Load<Texture2D>("victim");
@@ -397,7 +397,7 @@ namespace TwinStick
             SpawnVictims();
 
             // Update the player
-            player.Update(gameTime, tileMap, playerDirection);
+            player.Update(gameTime, tileMap, playerDirection, virtualScreenRect);
 
             // Check victim save
             if (victim.IsAlive && player.CollisionRect.Intersects(victim.CollisionRect))
@@ -410,7 +410,7 @@ namespace TwinStick
 
             // Update enemy and bullet managers
             enemyManager.Update(gameTime, player, tileMap, victim);
-            bulletManager.Update(gameTime, player, tileMap, shootDirection);
+            bulletManager.Update(gameTime, player, tileMap, shootDirection, virtualScreenRect);
 
             // Check bullet collision with enemy
             UpdateBulletsAndCheckCollisions(gameTime);
@@ -619,6 +619,9 @@ namespace TwinStick
                 victims[i] = sprite;
                 victimColor[i] = Color.White;
             }
+
+            enemyManager.Reset();
+            bulletManager.Reset();
 
             // reset level changed flag
             levelChanged = false;

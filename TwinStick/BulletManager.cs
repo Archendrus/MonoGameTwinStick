@@ -14,26 +14,24 @@ namespace TwinStick
         Texture2D bulletTexture;
         float shotTimerElapsed;
 
-        Rectangle virtualScreenRect;
         Vector2 scale;
 
-        public BulletManager(Texture2D bulletTexture, Rectangle virtualScreenRect, Vector2 scale)
+        public BulletManager(Texture2D bulletTexture, Vector2 scale)
         {
             Bullets = new List<Bullet>();
             this.bulletTexture = bulletTexture;
-            this.virtualScreenRect = virtualScreenRect;
             this.scale = scale;
             shotTimerElapsed = 0;
         }
 
-        public void Update(GameTime gameTime, Player player, TileMap tileMap, Vector2 shootDirection)
+        public void Update(GameTime gameTime, Player player, TileMap tileMap, Vector2 shootDirection, Rectangle virtualScreenRect)
         {
             CreateBullets(gameTime, player, shootDirection);
 
             // Update the bullets
             for (int i = 0; i < Bullets.Count; i++)
             {
-                Bullets[i].Update(gameTime, tileMap);
+                Bullets[i].Update(gameTime, tileMap, virtualScreenRect);
             }
         }
 
@@ -88,6 +86,11 @@ namespace TwinStick
                     Bullets.Remove(Bullets[i]);
                 }
             }
+        }
+
+        public void Reset()
+        {
+            Bullets.Clear();
         }
     }
 }

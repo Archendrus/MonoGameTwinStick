@@ -29,7 +29,7 @@ namespace TwinStick
             this.direction = direction;
         }
 
-        public void Update(GameTime time, TileMap map)
+        public void Update(GameTime time, TileMap map, Rectangle virtualScreenRect)
         {
             if (IsAlive)
             {
@@ -39,7 +39,7 @@ namespace TwinStick
                 Position += direction * speed * elapsed;
 
                 // kill if offscreen
-                if (!Game1.virtualScreenRect.Contains(BoundingRect))
+                if (!virtualScreenRect.Contains(BoundingRect))
                 {
                     IsAlive = false;
                 }
