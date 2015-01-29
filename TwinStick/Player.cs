@@ -21,23 +21,23 @@ namespace TwinStick
             get
             {
                 return new Rectangle(
-                    (int)Position.X + (4 * (int)Game1.Scale.X),
+                    (int)Position.X + (4 * (int)scale.X),
                     (int)Position.Y, 
-                    (8 * (int)Game1.Scale.X),
+                    (8 * (int)scale.X),
                     Height);
             }   
         }
 
-        public Player(Texture2D texture, Vector2 position) 
-            : base(texture, position)
+        public Player(Texture2D texture, Vector2 position, Vector2 scale) 
+            : base(texture, position, scale)
         {
 
             Direction = new Vector2(0, 0);
             speed = 175f;
         }
 
-        public Player(Texture2D texture)
-            : base(texture)
+        public Player(Texture2D texture, Vector2 scale)
+            : base(texture, scale)
         {
             Direction = new Vector2(0, 0);
             speed = 175f;

@@ -18,21 +18,21 @@ namespace TwinStick
             get
             {
                 return new Rectangle(
-                    (int)Position.X + (4 * (int)Game1.Scale.X),
+                    (int)Position.X + (4 * (int)scale.X),
                     (int)Position.Y,
-                    (8 * (int)Game1.Scale.X),
+                    (8 * (int)scale.X),
                     Height);
             }
         }
 
-        public Victim(Texture2D texture, Vector2 position)
-            : base(texture, position)
+        public Victim(Texture2D texture, Vector2 position, Vector2 scale)
+            : base(texture, position, scale)
         {
 
         }
 
-        public Victim(Texture2D texture)
-            : base(texture)
+        public Victim(Texture2D texture, Vector2 scale)
+            : base(texture, scale)
         {
 
         }

@@ -18,10 +18,12 @@ namespace TwinStick
         private Tile[,] tiles;
         private Texture2D tileSheet;
         private bool isSolid;
+        Vector2 scale;
 
-        public TileMap(Texture2D tileSheet)
+        public TileMap(Texture2D tileSheet, Vector2 scale)
         {
             this.tileSheet = tileSheet;
+            this.scale = scale;
 
             map = new int[,]
             {
@@ -58,7 +60,7 @@ namespace TwinStick
                     int tileId = map[i, j];
 
                     // calculate position from map to pixel coordinates
-                    Vector2 position = new Vector2(j * Tile.WIDTH, i * Tile.HEIGHT);
+                    Vector2 position = new Vector2(j * Tile.Width, i * Tile.Height);
 
                     // Set solid tile
                     if (tileId > 0)
@@ -72,7 +74,7 @@ namespace TwinStick
 
                     // Create new tile
                     newTile = new Tile(new Rectangle(tileId * 16, 0, 16, 16),
-                                       position, isSolid);
+                                       position, scale, isSolid);
 
                     // Add new tile to tiles array
                     tiles[i, j] = newTile;
@@ -95,7 +97,7 @@ namespace TwinStick
                         Color.White,
                         0.0f,
                         Vector2.Zero,
-                        Game1.Scale,
+                        scale,
                         SpriteEffects.None,
                         0.0f);
                 }
@@ -119,10 +121,10 @@ namespace TwinStick
         {
             List<Tile> tiles = new List<Tile>();
 
-            int leftTile = (int)Math.Floor((float)collisionRect.Left / Tile.WIDTH);
-            int rightTile = (int)Math.Ceiling(((float)collisionRect.Right / Tile.WIDTH)) - 1;
-            int topTile = (int)Math.Floor((float)collisionRect.Top / Tile.HEIGHT);
-            int bottomTile = (int)Math.Ceiling(((float)collisionRect.Bottom / Tile.HEIGHT)) - 1;
+            int leftTile = (int)Math.Floor((float)collisionRect.Left / Tile.Width);
+            int rightTile = (int)Math.Ceiling(((float)collisionRect.Right / Tile.Width)) - 1;
+            int topTile = (int)Math.Floor((float)collisionRect.Top / Tile.Height);
+            int bottomTile = (int)Math.Ceiling(((float)collisionRect.Bottom / Tile.Height)) - 1;
 
             // For each potentially colliding tile,
             for (int y = topTile; y <= bottomTile; ++y)

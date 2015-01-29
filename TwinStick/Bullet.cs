@@ -24,32 +24,37 @@ namespace TwinStick
         }
 
         // Create bullet moving in direction
-        public Bullet(Texture2D texture, Vector2 direction) : base(texture)
+        public Bullet(Texture2D texture, Vector2 direction, Vector2 scale) : base(texture, scale)
         {
             this.direction = direction;
         }
 
         public void Update(GameTime time, TileMap map)
         {
-            // update position every frame
-            float elapsed = (float)time.ElapsedGameTime.TotalSeconds;
-
-            Position += direction * speed * elapsed;
-
-            if (!Game1.virtualScreenRect.Contains(BoundingRect))
+            if (IsAlive)
             {
-                IsAlive = false;
-            }
+                // update position every frame
+                float elapsed = (float)time.ElapsedGameTime.TotalSeconds;
 
-            // Check for collision with tiles
-            collisionTiles = map.CheckTileCollsions(CollisionRect);
-            foreach (Tile tile in collisionTiles)
-            {
-                if (tile.IsSolid)
+                Position += direction * speed * elapsed;
+
+                // kill if offscreen
+                if (!Game1.virtualScreenRect.Contains(BoundingRect))
                 {
                     IsAlive = false;
                 }
+
+                // Check for collision with tiles
+                collisionTiles = map.CheckTileCollsions(CollisionRect);
+                foreach (Tile tile in collisionTiles)
+                {
+                    if (tile.IsSolid)
+                    {
+                        IsAlive = false;
+                    }
+                }
             }
+           
         }
     }
 }

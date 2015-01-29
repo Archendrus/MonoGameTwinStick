@@ -19,9 +19,9 @@ namespace TwinStick
             get
             {
                 return new Rectangle(
-                    (int)Position.X + (4 * (int)Game1.Scale.X),
+                    (int)Position.X + (4 * (int)scale.X),
                     (int)Position.Y,
-                    (8 * (int)Game1.Scale.X),
+                    (8 * (int)scale.X),
                     Height);
             }
         }
@@ -31,49 +31,53 @@ namespace TwinStick
         {
             get
             {
-                return new Circle(new Vector2(Center.X, Center.Y), 8.0f * Game1.Scale.X);
+                return new Circle(new Vector2(Center.X, Center.Y), 8.0f * scale.X);
             }
         }
 
-        public Zombie(Texture2D texture, Vector2 position, float speed)
-            : base(texture, position)
+        public Zombie(Texture2D texture, Vector2 position, float speed, Vector2 scale)
+            : base(texture, position, scale)
         {
             this.speed = speed;
         }
 
-        public Zombie(Texture2D texture, float speed)
-            : base(texture)
+        public Zombie(Texture2D texture, float speed, Vector2 scale)
+            : base(texture, scale)
         {
             this.speed = speed;
         }
 
         public void Update(GameTime time, TileMap map, Player player, Victim victim)
         {
-            float elapsed = (float)time.ElapsedGameTime.TotalSeconds;
-            Vector2 direction = Vector2.Zero;
-
-            // if there is a victim, decide which direction to move
-            if (victim.IsAlive)
+            if (IsAlive)
             {
-                // if victim is closer move towards victim
-                if (Vector2.Distance(Center, victim.Center) < Vector2.Distance(Center, player.Center))
+                float elapsed = (float)time.ElapsedGameTime.TotalSeconds;
+                Vector2 direction = Vector2.Zero;
+
+                // if there is a victim, decide which direction to move
+                if (victim.IsAlive)
                 {
-                    direction = victim.Position - Position;
+                    // if victim is closer move towards victim
+                    if (Vector2.Distance(Center, victim.Center) < Vector2.Distance(Center, player.Center))
+                    {
+                        direction = victim.Position - Position;
+                    }
+                    else // move towards player
+                    {
+                        direction = player.Position - Position;
+                    }
                 }
-                else // move towards player
+                else // no victim, move towards player
                 {
                     direction = player.Position - Position;
                 }
-            }
-            else // no victim, move towards player
-            {
-                direction = player.Position - Position;
+
+                // Update position and check tile collisions
+                direction.Normalize();
+                Position += direction * speed * elapsed;
+                ResolveTileCollisions(map);
             }
             
-            // Update position and check tile collisions
-            direction.Normalize();
-            Position += direction * speed * elapsed;
-            ResolveTileCollisions(map);
         }
 
         // Resolve tile collsions on both axis at once

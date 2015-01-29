@@ -18,10 +18,10 @@ namespace TwinStick
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         RenderTarget2D renderTarget;
-        public const int VirtualWidth = 800;
-        public const int VirtualHeight = 480;
-        public static Vector2 Scale;     
-        public static Rectangle screenRectangle;
+        int VirtualWidth = 800;
+        int VirtualHeight = 480;
+        Vector2 Scale;     
+        Rectangle screenRectangle;
         public static Rectangle virtualScreenRect;
 
         // Game states
@@ -35,9 +35,8 @@ namespace TwinStick
         Player player;
         Victim victim;
 
-        // Sprite lists
-        List<Zombie> enemies;
-        List<Bullet> bullets;
+        EnemyManager enemyManager;
+        BulletManager bulletManager;
 
         // Input states
         KeyboardState key;
@@ -59,12 +58,7 @@ namespace TwinStick
         // Player/bullet update args
         Vector2 playerDirection;
         Vector2 shootDirection;
-        float shotTimerElapsed = 0;
 
-        List<Vector2> spawnPoints;
-        float enemySpawnElapsed = 0;
-        float enemySpawnRate;
-        float enemySpeed;
 
         // Random number generator for victim spawn
         Random random;
@@ -132,9 +126,7 @@ namespace TwinStick
             controlMessages.Add("ARROWS / RIGHT STICK TO SHOOT");
             controlMessages.Add("SHOOT ZOMBIES!\nSAVE SURVIORS!");
 
-            enemySpawnRate = 3.10f;
-            enemySpeed = 20f;
-
+            // Start on titlescreen
             currentState = GameState.TitleScreen;
 
             base.Initialize();
@@ -162,26 +154,26 @@ namespace TwinStick
 
             // Create tile map
             temp = Content.Load<Texture2D>("tiles");
-            tileMap = new TileMap(temp);
+            tileMap = new TileMap(temp, Scale);
 
             // Create player
             temp = Content.Load<Texture2D>("hero");
-            player = new Player(temp);
+            player = new Player(temp, Scale);
             
-
             // Create zombies and zombie list
             zombieTexture = Content.Load<Texture2D>("zombie");
-            enemies = new List<Zombie>();
+            enemyManager = new EnemyManager(zombieTexture, virtualScreenRect, Scale);
            
             // bullets
-            bullets = new List<Bullet>();
+            //bullets = new List<Bullet>();
             bulletTexture = Content.Load<Texture2D>("bullet");
+            bulletManager = new BulletManager(bulletTexture, virtualScreenRect, Scale);
 
             // Victim
             victimTexture = Content.Load<Texture2D>("victim");
             
             // Create one victim sprite to be used for all victims
-            victim = new Victim(victimTexture);
+            victim = new Victim(victimTexture, Scale);
             
             // RNG for victim spawn
             random = new Random();
@@ -218,6 +210,7 @@ namespace TwinStick
             key = Keyboard.GetState();
             gamePad = GamePad.GetState(PlayerIndex.One);
 
+            // Update the current state
             switch (currentState)
             {
                 case GameState.TitleScreen:
@@ -276,30 +269,18 @@ namespace TwinStick
             // Draw score
             spriteBatch.DrawString(scoreFont, score.ToString("D8"), new Vector2(32, 0), Color.PaleGreen);
 
-            // draw all bullets
-            for (int i = 0; i < bullets.Count; i++ )
-            {
-                bullets[i].Draw(spriteBatch);
-            }
+            // draw the victim scoreboard
+            spriteBatch.Draw(victimBoardRenderTarget, victimBoardRenderTargetRect, Color.White);
 
             // draw player over bullets
             player.Draw(spriteBatch);
 
+            bulletManager.Draw(spriteBatch);
+
+            enemyManager.Draw(spriteBatch);
             // Draw victim if one is spawned
-            if (victim.IsAlive)
-            {
-                victim.Draw(spriteBatch);
-            }
-
-            // draw all enemies over player
-            for (int i = 0; i < enemies.Count; i++)
-            {
-                enemies[i].Draw(spriteBatch);
-            }
-
-            // draw the victim scoreboard
-            spriteBatch.Draw(victimBoardRenderTarget, victimBoardRenderTargetRect, Color.White);
-
+            victim.Draw(spriteBatch);
+           
             // Draw any messages centered on the screen
             if (message != String.Empty)
             {
@@ -344,6 +325,7 @@ namespace TwinStick
             // Change state to controls screen if enter or start pressed
             if (key.IsKeyDown(Keys.Enter) || gamePad.Buttons.Start == ButtonState.Pressed)
             {
+                // Change state, remove text
                 currentState = GameState.Controls;
                 message = String.Empty;
             }
@@ -381,13 +363,12 @@ namespace TwinStick
             if (!levelChanged)
             {
                 currentLevel++;
-                enemySpawnRate -= 0.10f;
-
+                //enemySpawnRate -= 0.10f;
 
                 // increase zombie speed every 2 levels
                 if (currentLevel % 2 == 0)
                 {
-                    enemySpeed += .2f;
+                    //enemySpeed += .2f;
                 }
 
                 levelChanged = true;
@@ -399,6 +380,7 @@ namespace TwinStick
             messageTimerElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (messageTimerElapsed > 2.0f)
             {
+                // Change state, remove text
                 message = String.Empty;
                 messageTimerElapsed = 0;
                 currentState = GameState.Game;
@@ -414,9 +396,6 @@ namespace TwinStick
             // Spawn victims
             SpawnVictims();
 
-            // Create bullets if shooting
-            CreateBullets(gameTime);
-
             // Update the player
             player.Update(gameTime, tileMap, playerDirection);
 
@@ -429,45 +408,34 @@ namespace TwinStick
                 UpdateVictimBoard(victimSave);
             }
 
-            // Create enemies
-            SpawnEnemies(gameTime);
+            // Update enemy and bullet managers
+            enemyManager.Update(gameTime, player, tileMap, victim);
+            bulletManager.Update(gameTime, player, tileMap, shootDirection);
 
-            // Update the enemies
-            for (int i = 0; i < enemies.Count; i++)
+            // Check bullet collision with enemy
+            UpdateBulletsAndCheckCollisions(gameTime);
+
+            // Check enemy collision with victim
+            for (int i = 0; i < enemyManager.Enemies.Count; i++)
             {
-                enemies[i].Update(gameTime, tileMap, player, victim);
-
-                // Check enemy collision with victim
-                if (victim.IsAlive && enemies[i].CollisionRect.Intersects(victim.CollisionRect))
+                if (victim.IsAlive && enemyManager.Enemies[i].CollisionRect.Intersects(victim.CollisionRect))
                 {
                     victim.IsAlive = false;
                     UpdateVictimBoard(victimKilled);
                 }
             }
 
-            // Prevent enemies from overlapping each other
-            ResolveEnemyCollision();
-
-            // Check bullet collision with enemy
-            UpdateBulletsAndCheckCollisions(gameTime);
-
-            // Remove any enemies and bullets that are not alive
-            CleanupSpriteLists();
-
-
             // Check win/lose conditions
+            // All victims spawned
             if (currentVictim == totalVictims)
             {
+                // If saved at least half the victims, go to next level
                 if (saved >= totalVictims / 2)
                 {
                     ResetGame();
                     currentState = GameState.NextLevel;
                 }
             }
-
-            Console.WriteLine("spawn_rate: " + enemySpawnRate);
-            Console.WriteLine("enemy_speed: " + enemySpeed);
-            
         }
 
         // Handle input from keyboard and gamepad
@@ -528,33 +496,6 @@ namespace TwinStick
             }
         }
 
-        // Create bullets and add them to the bullet list if shooting
-        // and fireRate time has passed since last shot
-        public void CreateBullets(GameTime gameTime)
-        {
-            float fireRate = .30f;
-            // accumulate elapsed time
-            shotTimerElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
-            // if input
-            if (shootDirection != Vector2.Zero)
-            {
-                // if fireRate time has passed since last shot
-                if (shotTimerElapsed > fireRate)
-                {
-                    // create a new bullet at player position, in shootDirection
-                    // add to bullet list
-                    shootDirection.Normalize();
-                    Bullet bullet = new Bullet(bulletTexture, shootDirection);
-                    bullet.Position = new Vector2(
-                        player.Position.X + ((player.Width / 2.0f) - (bullet.Width / 2.0f)),
-                        player.Position.Y + ((player.Height / 2.0f) - (bullet.Height / 2.0f)));
-                    bullets.Add(bullet);
-                    // reset timer
-                    shotTimerElapsed = 0;
-                }
-            }
-        }
-
         // Spawn on a random, non-solid, non-occupied tile with a chance of
         // spawnChance
         private void SpawnVictims()
@@ -576,7 +517,7 @@ namespace TwinStick
                     {
                         // if not solid, check if any zombies are colliding with this tile
                         tileClear = true;
-                        foreach (Zombie zombie in enemies)
+                        foreach (Zombie zombie in enemyManager.Enemies)
                         {
                             // get all tiles zombie is currently intersecting
                             List<Tile> collisionTiles = tileMap.CheckTileCollsions(zombie.CollisionRect);
@@ -600,90 +541,21 @@ namespace TwinStick
             }
         }
 
-        // spawn an enemy at each point in spawnPoints at spawnRate
-        public void SpawnEnemies(GameTime gameTime)
-        {
-            //float spawnRate = 3.0f;
-            enemySpawnElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (enemySpawnElapsed > enemySpawnRate)
-            {
-                foreach (Vector2 spawnPoint in spawnPoints)
-                {
-                    enemies.Add(new Zombie(zombieTexture, spawnPoint, enemySpeed));
-                }
-                // reset timer
-                enemySpawnElapsed = 0;
-            }
-        }
-
         // Update all bullets and check collsion with enemies
         public void UpdateBulletsAndCheckCollisions(GameTime gameTime)
         {
             // Update the bullets
-            for (int i = 0; i < bullets.Count; i++)
+            for (int i = 0; i < bulletManager.Bullets.Count; i++)
             {
-                bullets[i].Update(gameTime, tileMap);
                 // Check each bullet for collision with each enemy
-                for (int j = 0; j < enemies.Count; j++)
+                for (int j = 0; j < enemyManager.Enemies.Count; j++)
                 {
-                    if (bullets[i].CollisionRect.Intersects(enemies[j].CollisionRect))
+                    if (bulletManager.Bullets[i].CollisionRect.Intersects(enemyManager.Enemies[j].CollisionRect))
                     {
-                        bullets[i].IsAlive = false;
-                        enemies[j].IsAlive = false;
+                        bulletManager.Kill(i);
+                        enemyManager.Kill(j);
                         score += 100;
                     }
-                }
-            }
-        }
-
-        // Check for and resolve collisions between enemies
-        // if two enemies collide, push them back in opposite directions
-        public void ResolveEnemyCollision()
-        {
-            for (int i = 0; i < enemies.Count; i++)
-            {
-                for (int j = i + 1; j < enemies.Count; j++)
-                {
-                    Zombie zombie1 = enemies[i] as Zombie;
-                    Zombie zombie2 = enemies[j] as Zombie;
-
-                    // Check if enemies are colliding and get the depth of collision
-                    float depth = zombie1.CollisionCircle.GetIntersectionDepth(zombie2.CollisionCircle);
-
-                    // Collision
-                    if (depth != 0)
-                    {
-                        // Get direction to move first zombie away from second zombie
-                        Vector2 direction = zombie1.CollisionCircle.Position - zombie2.CollisionCircle.Position;
-                        direction.Normalize();
-
-                        // Move first zombie away half the depth of collision
-                        zombie1.Position += direction * (depth / 2.0f);
-                        // Move second zombie in the opposite direction half the depth of collision
-                        zombie2.Position -= direction * (depth / 2.0f);
-                    }
-                }
-            }
-        }
-
-        // Remove all inactive sprites from bullets and enemies
-        public void CleanupSpriteLists()
-        {
-            // Remove inactive bullets
-            for (int i = 0; i < bullets.Count; i++)
-            {
-                if (!bullets[i].IsAlive)
-                {
-                    bullets.Remove(bullets[i]);
-                }
-            }
-
-            // Remove inactive enemies
-            for (int i = 0; i < enemies.Count; i++)
-            {
-                if (!enemies[i].IsAlive)
-                {
-                    enemies.Remove(enemies[i]);
                 }
             }
         }
@@ -728,16 +600,8 @@ namespace TwinStick
 
         public void ResetGame()
         {
+            // Move player to center
             player.Position = new Vector2((VirtualWidth / 2) - (player.Width / 2), (VirtualHeight / 2) - (player.Height / 2));
-
-            // Initialize spawn points
-            spawnPoints = new List<Vector2>();
-            float centerY = (VirtualHeight / 2.0f) - (zombieTexture.Height / 2.0f);
-            float centerX = (VirtualWidth / 2.0f) - (zombieTexture.Width / 2.0f);
-            spawnPoints.Add(new Vector2(0 - (zombieTexture.Width / 2.0f), centerY));
-            spawnPoints.Add(new Vector2(VirtualWidth + (zombieTexture.Width / 2.0f), centerY));
-            spawnPoints.Add(new Vector2(centerX, 0 - (zombieTexture.Height / 2.0f)));
-            spawnPoints.Add(new Vector2(centerX, VirtualHeight + (zombieTexture.Height / 2.0f)));
 
             // Reset victim
             victim.IsAlive = false;
@@ -750,15 +614,11 @@ namespace TwinStick
             victimColor = new Color[totalVictims];
             for (int i = 0; i < victims.Length; i++)
             {
-                Sprite sprite = new Sprite(victimTexture);
+                Sprite sprite = new Sprite(victimTexture, Scale);
                 sprite.Position = new Vector2(i * sprite.Width, 0);
                 victims[i] = sprite;
                 victimColor[i] = Color.White;
             }
-
-            // empty sprite lists
-            bullets.Clear();
-            enemies.Clear();
 
             // reset level changed flag
             levelChanged = false;

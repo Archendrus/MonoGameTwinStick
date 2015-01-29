@@ -18,6 +18,8 @@ namespace TwinStick
         public int Width { get; private set; }
         public int Height { get; private set; }
 
+        protected Vector2 scale;
+
         // Calculated Vector2 for center of sprite
         public Vector2 Center
         {
@@ -41,12 +43,13 @@ namespace TwinStick
         // Create sprite with texture at position
         // Calculate sprite dimensions based on scale
         // set to alive on creation
-        public Sprite(Texture2D texture, Vector2 position)
+        public Sprite(Texture2D texture, Vector2 position, Vector2 scale)
         {
             this.texture = texture;
+            this.scale = scale; 
             Position = position;
-            Height = texture.Height * (int)Game1.Scale.Y;
-            Width = texture.Width * (int)Game1.Scale.X;
+            Height = texture.Height * (int)scale.Y;
+            Width = texture.Width * (int)scale.X;
             IsAlive = true;
             
         }
@@ -55,43 +58,52 @@ namespace TwinStick
         // Calculate sprite dimensions based on scale
         // set to alive on creation
         // sprite will have no position and will not be drawn
-        public Sprite(Texture2D texture)
+        public Sprite(Texture2D texture, Vector2 scale)
         {
             this.texture = texture;
+            this.scale = scale;
             Position = Vector2.Zero;
-            Width = texture.Width * (int)Game1.Scale.X;
-            Height = texture.Height * (int)Game1.Scale.Y;
+            Width = texture.Width * (int)scale.X;
+            Height = texture.Height * (int)scale.Y;
             IsAlive = true;
         }
 
         // Draw sprite at position at Game1.Scale
         public virtual void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(
-                texture,
-                new Vector2((int)Position.X, (int)Position.Y),
-                null,
-                Color.White,
-                0.0f,
-                Vector2.Zero,
-                Game1.Scale,
-                SpriteEffects.None,
-                0.0f);
+            if (IsAlive)
+            {
+                spriteBatch.Draw(
+                    texture,
+                    new Vector2((int)Position.X, (int)Position.Y),
+                    null,
+                    Color.White,
+                    0.0f,
+                    Vector2.Zero,
+                    scale,
+                    SpriteEffects.None,
+                    0.0f);
+            }
+
         }
 
         // Draw sprite at position, tint with color
         public virtual void Draw(SpriteBatch spriteBatch, Color color)
         {
-            spriteBatch.Draw(
-                texture,
-                new Vector2((int)Position.X, (int)Position.Y),
-                null,
-                color,
-                0.0f,
-                Vector2.Zero,
-                Game1.Scale,
-                SpriteEffects.None,
-                0.0f);
+            if (IsAlive)
+            {
+                spriteBatch.Draw(
+                    texture,
+                    new Vector2((int)Position.X, (int)Position.Y),
+                    null,
+                    color,
+                    0.0f,
+                    Vector2.Zero,
+                    scale,
+                    SpriteEffects.None,
+                    0.0f);
+            }
+            
         }
         
     }
