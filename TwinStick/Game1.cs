@@ -286,7 +286,7 @@ namespace TwinStick
             if (message != String.Empty)
             {
                 Vector2 textSize = textFont.MeasureString(message);
-                Vector2 drawPos = new Vector2((VirtualWidth / 2) - (textSize.X / 2), (VirtualHeight / 2) - (textSize.Y));
+                Vector2 drawPos = new Vector2((VirtualWidth / 2) - (textSize.X / 2), (VirtualHeight / 2) - (textSize.Y + 48));
                 spriteBatch.DrawString(textFont, message, drawPos, messageColor);
             }
             
@@ -364,7 +364,7 @@ namespace TwinStick
             if (!levelChanged)
             {
                 currentLevel++;
-                enemyManager.EnemySpawnRate -= 0.20f;
+                enemyManager.EnemySpawnRate -= 0.1f;
 
                 // increase zombie speed every 2 levels
                 if (currentLevel % 2 == 0)
