@@ -25,10 +25,9 @@ namespace TwinStick
         Rectangle virtualScreenRect;
 
         // Game states
-        enum GameState { TitleScreen, Game, NextLevel, Controls };
+        enum GameState { TitleScreen, Game, NextLevelScreen, ControlsScreen };
         GameState currentState;
         int currentLevel;
-        bool levelChanged;
 
         // Game objects
         TileMap tileMap;
@@ -59,14 +58,13 @@ namespace TwinStick
         Vector2 playerDirection;
         Vector2 shootDirection;
 
-
         // Random number generator for victim spawn
         Random random;
 
         // Score and surviors
         SpriteFont scoreFont;
         int score = 0;
-        int totalVictims;
+        const int TOTAL_VICTIMS = 8;
         int currentVictim;
         int saved;
         Sprite[] victims;
@@ -121,13 +119,9 @@ namespace TwinStick
 
             // Initialize values for messages
             messageColor = new Color(32, 92, 32);
-            controlMessages = new List<String>();
-            controlMessages.Add("WASD / LEFT STICK TO MOVE");
-            controlMessages.Add("ARROWS / RIGHT STICK TO SHOOT");
-            controlMessages.Add("SHOOT ZOMBIES!\nSAVE SURVIORS!");
 
             // Start on titlescreen
-            currentState = GameState.TitleScreen;
+            ChangeState(GameState.TitleScreen);
 
             base.Initialize();
         }
@@ -175,7 +169,7 @@ namespace TwinStick
             
             // Create one victim sprite to be used for all victims
             victim = new Victim(victimTexture, Scale);
-            
+         
             // RNG for victim spawn
             random = new Random();
 
@@ -219,14 +213,14 @@ namespace TwinStick
                     TitleScreenUpdate(gameTime);
                     break;
                 }
-                case GameState.Controls:
+                case GameState.ControlsScreen:
                 {
                     ControlsScreenUpdate(gameTime);
                     break;
                 }
-                case GameState.NextLevel:
+                case GameState.NextLevelScreen:
                 {
-                    ChangeLevel(gameTime);
+                    UpdateNextLevelScreen(gameTime);
                     break;
                 }
                 case GameState.Game:
@@ -313,6 +307,51 @@ namespace TwinStick
         }
 
 
+        // Run initialization logic for newState
+        // Clear messages then change to newState
+        private void ChangeState(GameState newState)
+        {
+            message = String.Empty;
+
+            switch (newState)
+            {
+                // Enter TitleScreen
+                // set titlescreen message
+                case GameState.TitleScreen:
+                {
+                    message = "ZOMBIES 2600\n\n PRESS START";
+                    break;
+                }
+                // Enter ControlsScreen
+                // create a list of message to be shown
+                case GameState.ControlsScreen:
+                {
+                    controlMessages = new List<String>();
+                    controlMessages.Add("WASD / LEFT STICK TO MOVE");
+                    controlMessages.Add("ARROWS / RIGHT STICK TO SHOOT");
+                    controlMessages.Add("SHOOT ZOMBIES!\nSAVE SURVIORS!");
+                    break;
+                }
+                // Enter NextLevelScreen
+                // Call ChangeLevel()
+                case GameState.NextLevelScreen:
+                {
+                    ChangeLevel();
+                    break;
+                }
+                // Enter Game state
+                // reset the game
+                case GameState.Game:
+                {
+                    ResetGame();
+                    break;
+                }
+            }
+
+            // change current state to newState
+            currentState = newState;
+        }
+
         // Update function for the title screen state.
         // Displays Title until start or enter is pressed
         private void TitleScreenUpdate(GameTime gameTime)
@@ -320,15 +359,11 @@ namespace TwinStick
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // Show title screen message
-            message = "ZOMBIES 2600\n\n PRESS START";
-
             // Change state to controls screen if enter or start pressed
             if (key.IsKeyDown(Keys.Enter) || gamePad.Buttons.Start == ButtonState.Pressed)
             {
                 // Change state, remove text
-                currentState = GameState.Controls;
-                message = String.Empty;
+                ChangeState(GameState.ControlsScreen);
             }
         }
 
@@ -353,38 +388,25 @@ namespace TwinStick
                 if (currentControlMessage > controlMessages.Count - 1)
                 {
                     message = String.Empty;
-                    currentState = GameState.NextLevel;
+                    ChangeState(GameState.NextLevelScreen);
                 }
             }
         }
-
-        public void ChangeLevel(GameTime gameTime)
+        
+        // Update logic for NextLevelScreen
+        // shows level message then changes to game state
+        public void UpdateNextLevelScreen(GameTime gameTime)
         {
-            // Change level and level values once
-            if (!levelChanged)
-            {
-                currentLevel++;
-                enemyManager.EnemySpawnRate -= 0.1f;
-
-                // increase zombie speed every 2 levels
-                if (currentLevel % 2 == 0)
-                {
-                    enemyManager.EnemySpeed += 1f;
-                }
-
-                levelChanged = true;
-            }
-            
             // Show level message for two seconds
             // then change to game state
             message = "LEVEL " + currentLevel;
             messageTimerElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (messageTimerElapsed > 2.0f)
+            if (messageTimerElapsed > 3.0f)
             {
                 // Change state, remove text
                 message = String.Empty;
                 messageTimerElapsed = 0;
-                currentState = GameState.Game;
+                ChangeState(GameState.Game);
             }
         }
 
@@ -425,25 +447,16 @@ namespace TwinStick
                 victim.IsAlive = false;
                 UpdateVictimBoard(victimKilled);
             }
-            // Check enemy collision with victim
-            //for (int i = 0; i < enemyManager.Enemies.Count; i++)
-            //{
-            //    if (victim.IsAlive && enemyManager.Enemies[i].CollisionRect.Intersects(victim.CollisionRect))
-            //    {
-            //        victim.IsAlive = false;
-            //        UpdateVictimBoard(victimKilled);
-            //    }
-            //}
 
             // Check win/lose conditions
             // All victims spawned
-            if (currentVictim == totalVictims)
+            if (currentVictim == TOTAL_VICTIMS)
             {
                 // If saved at least half the victims, go to next level
-                if (saved >= totalVictims / 2)
+                if (saved >= TOTAL_VICTIMS / 2)
                 {
-                    ResetGame();
-                    currentState = GameState.NextLevel;
+                    // level passed, change to next level state
+                    ChangeState(GameState.NextLevelScreen);
                 }
             }
         }
@@ -608,6 +621,20 @@ namespace TwinStick
             spriteBatch.End();
         }
 
+        // Increment the level and change 
+        // speed and spawn rate in enemy manager
+        public void ChangeLevel()
+        {
+            currentLevel++;
+            enemyManager.EnemySpawnRate -= 0.3f;
+
+            // increase zombie speed every 2 levels
+            if (currentLevel % 2 == 0)
+            {
+                enemyManager.EnemySpeed += 2f;
+            }
+        }
+
         public void ResetGame()
         {
             // Move player to center
@@ -615,13 +642,12 @@ namespace TwinStick
             player.Position = new Vector2(200f, 200f);
             // Reset victim
             victim.IsAlive = false;
-            totalVictims = 8;
             currentVictim = 0;
             saved = 0;
 
             // build parallel arrays for victim board sprites and color tints
-            victims = new Sprite[totalVictims];
-            victimColor = new Color[totalVictims];
+            victims = new Sprite[TOTAL_VICTIMS];
+            victimColor = new Color[TOTAL_VICTIMS];
             for (int i = 0; i < victims.Length; i++)
             {
                 Sprite sprite = new Sprite(victimTexture, Scale);
@@ -633,8 +659,6 @@ namespace TwinStick
             enemyManager.Reset();
             bulletManager.Reset();
 
-            // reset level changed flag
-            levelChanged = false;
         }
     }
 }
