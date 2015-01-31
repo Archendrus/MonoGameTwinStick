@@ -54,6 +54,8 @@ namespace TwinStick
         
         private Vector2 scale;
 
+        public bool HadVictimCollision { get; private set; }
+
         public EnemyManager(Texture2D zombieTexture, Rectangle virtualScreenRect, Vector2 scale)
         {
             Enemies = new List<Zombie>();
@@ -70,9 +72,15 @@ namespace TwinStick
         {
             SpawnEnemies(gameTime);
 
+            HadVictimCollision = false;
+
             for (int i = 0; i < Enemies.Count; i++)
             {
                 Enemies[i].Update(gameTime, tileMap, player, victim);
+                if (victim.IsAlive && Enemies[i].CollisionRect.Intersects(victim.CollisionRect))
+                {
+                    HadVictimCollision = true;
+                }
             }
 
             ResolveEnemyCollision();

@@ -419,15 +419,21 @@ namespace TwinStick
             // Check bullet collision with enemy
             UpdateBulletsAndCheckCollisions(gameTime);
 
-            // Check enemy collision with victim
-            for (int i = 0; i < enemyManager.Enemies.Count; i++)
+
+            if (enemyManager.HadVictimCollision)
             {
-                if (victim.IsAlive && enemyManager.Enemies[i].CollisionRect.Intersects(victim.CollisionRect))
-                {
-                    victim.IsAlive = false;
-                    UpdateVictimBoard(victimKilled);
-                }
+                victim.IsAlive = false;
+                UpdateVictimBoard(victimKilled);
             }
+            // Check enemy collision with victim
+            //for (int i = 0; i < enemyManager.Enemies.Count; i++)
+            //{
+            //    if (victim.IsAlive && enemyManager.Enemies[i].CollisionRect.Intersects(victim.CollisionRect))
+            //    {
+            //        victim.IsAlive = false;
+            //        UpdateVictimBoard(victimKilled);
+            //    }
+            //}
 
             // Check win/lose conditions
             // All victims spawned
