@@ -11,15 +11,17 @@ namespace TwinStick
 {
     class TileMap
     {
-        public static int MAP_HEIGHT = 15;
-        public static int MAP_WIDTH = 25;
-        private int[,] map;
-        private Tile newTile;
-        private Tile[,] tiles;
-        private Texture2D tileSheet;
-        private bool isSolid;
+        public static int MAP_HEIGHT = 15;  // Height of map in tiles
+        public static int MAP_WIDTH = 25;  // Width of map in tiles
+        private int[,] map;  // map array
+        
+        private Tile[,] tiles;  // array of tiles
+        private Texture2D tileSheet;  // Texture containing all tiles images
+        private bool isSolid;  // set if solid tile (=1)
         Vector2 scale;
 
+
+        // Create tilemap, using tiles from tilesheet, at scale
         public TileMap(Texture2D tileSheet, Vector2 scale)
         {
             this.tileSheet = tileSheet;
@@ -47,6 +49,7 @@ namespace TwinStick
             LoadTiles();
         }
 
+        // Loop through map array, create array of tiles
         private void LoadTiles()
         {
             // Create array of tiles at map size
@@ -73,7 +76,7 @@ namespace TwinStick
                     }
 
                     // Create new tile
-                    newTile = new Tile(new Rectangle(tileId * 16, 0, 16, 16),
+                    Tile newTile = new Tile(new Rectangle(tileId * 16, 0, 16, 16),
                                        position, scale, isSolid);
 
                     // Add new tile to tiles array
@@ -82,6 +85,8 @@ namespace TwinStick
             }
         }
 
+
+        // Draw all tiles in tile array
         public void Draw(SpriteBatch spriteBatch)
         {
             // Loop through tile array and draw
@@ -104,6 +109,8 @@ namespace TwinStick
             }
         }
 
+
+        // Get the tile with upper left coord at x,y
         public Tile GetTile(int x, int y)
         {
             Tile tile;

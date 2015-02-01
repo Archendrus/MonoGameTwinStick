@@ -11,9 +11,11 @@ namespace TwinStick
 {
     class EnemyManager
     {
-        public List<Zombie> Enemies { get; private set; }
-        private float _enemySpawnRate;
-        private float _enemySpeed;
+        public List<Zombie> Enemies { get; private set; }  // List of enemies
+        private float _enemySpawnRate;  // backing field for EnemySpawnRate
+        private float _enemySpeed;  // backing field for EnemySpeed
+
+        // Rate at which enemies spawn
         public float EnemySpawnRate 
         {
             get
@@ -23,6 +25,7 @@ namespace TwinStick
             
             set
             {
+                // clamp enemy spawn rate at 1.20f
                 _enemySpawnRate = value;
                 if (_enemySpawnRate < 1.20f)
                 {
@@ -31,6 +34,8 @@ namespace TwinStick
             } 
         }
 
+
+        // Enemy movement speed
         public float EnemySpeed 
         { 
             get
@@ -40,6 +45,7 @@ namespace TwinStick
  
             set
             {
+                // clamp movement speed at 32f
                 _enemySpeed = value;
                 if (_enemySpeed > 32f)
                 {
@@ -48,13 +54,14 @@ namespace TwinStick
             }
         }
 
-        private Texture2D zombieTexture;
-        private List<Vector2> spawnPoints;
-        private float enemySpawnElapsed;
+        private Texture2D zombieTexture;  // Texture to use for enemies
+        private List<Vector2> spawnPoints;  // list of spawn points
+        private float enemySpawnElapsed;  // accumulates time since last enemy spawn
         
         private Vector2 scale;
 
-        public bool HadVictimCollision { get; private set; }
+        // flag if victim collision occured during last update 
+        public bool HadVictimCollision { get; private set; } 
 
         public EnemyManager(Texture2D zombieTexture, Rectangle virtualScreenRect, Vector2 scale)
         {
@@ -68,12 +75,17 @@ namespace TwinStick
             InitSpawnPoints(virtualScreenRect);
         }
 
+        // Update all enemies in enemy list
         public void Update(GameTime gameTime, Player player, TileMap tileMap, Victim victim)
         {
+            // Spawn enemies
             SpawnEnemies(gameTime);
 
+            // Reset victim collision flag
             HadVictimCollision = false;
 
+            // Update all enemies
+            // if enemy collides with victim, set victim collision flag
             for (int i = 0; i < Enemies.Count; i++)
             {
                 Enemies[i].Update(gameTime, tileMap, player, victim);
@@ -83,11 +95,14 @@ namespace TwinStick
                 }
             }
 
+            // Check and resolve collision between enemies
             ResolveEnemyCollision();
 
+            //  Remove inacive enemies from list
             CleanupSprites();
         }
 
+        // Draw all enemies in enemy list
         public void Draw(SpriteBatch spriteBatch)
         {
             // draw all enemies over player
@@ -97,9 +112,10 @@ namespace TwinStick
             }
         }
 
+
+        // Create a list of four enemy spawn points at N,S,E, and W
         private void InitSpawnPoints(Rectangle virtualScreenRect)
         {
-            // Initialize spawn points
             spawnPoints = new List<Vector2>();
             float centerY = (virtualScreenRect.Height / 2.0f) - (zombieTexture.Height / 2.0f);
             float centerX = (virtualScreenRect.Width / 2.0f) - (zombieTexture.Width / 2.0f);
@@ -154,6 +170,7 @@ namespace TwinStick
             }
         }
 
+        // Set enemy at index IsAlive flag to false
         public void Kill(int index)
         {
             Enemies[index].IsAlive = false;
@@ -172,6 +189,8 @@ namespace TwinStick
             }
         }
 
+
+        // Clear enemy list
         public void Reset()
         {
             Enemies.Clear();

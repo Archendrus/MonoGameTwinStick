@@ -40,7 +40,8 @@ namespace TwinStick
             IsSolid = isSolid;
             this.scale = scale;
 
-            Width = 16 * (int)scale.X;
+            // Tile size is always 16 (size of actual asset) * scale
+            Width = 16 * (int)scale.X; 
             Height = 16 * (int)scale.Y;
         }
     }

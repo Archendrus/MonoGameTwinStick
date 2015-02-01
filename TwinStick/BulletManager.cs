@@ -10,9 +10,9 @@ namespace TwinStick
 {
     class BulletManager
     {
-        public List<Bullet> Bullets { get; private set; }
-        Texture2D bulletTexture;
-        float shotTimerElapsed;
+        public List<Bullet> Bullets { get; private set; }  // list of bullets
+        Texture2D bulletTexture;  // texture to use for bullets
+        float shotTimerElapsed;  // accumulates time since last shot
 
         Vector2 scale;
 
@@ -26,6 +26,7 @@ namespace TwinStick
 
         public void Update(GameTime gameTime, Player player, TileMap tileMap, Vector2 shootDirection, Rectangle virtualScreenRect)
         {
+            // Create bullets
             CreateBullets(gameTime, player, shootDirection);
 
             // Update the bullets
@@ -33,18 +34,22 @@ namespace TwinStick
             {
                 Bullets[i].Update(gameTime, tileMap, virtualScreenRect);
             }
+
+            // Remove inactive bullets from list
+            CleanupSprites();
         }
 
+        // draw all bullets in bullets list
         public void Draw(SpriteBatch spriteBatch)
         {
             for (int i = 0; i < Bullets.Count; i++)
             {
                 Bullets[i].Draw(spriteBatch);
-            }
-
-            CleanupSprites();
+            }     
         }
 
+
+        // Create bullets at player.Position, moving in shootDirection at fireRate
         public void CreateBullets(GameTime gameTime, Player player, Vector2 shootDirection)
         {
             float fireRate = .30f;
@@ -70,7 +75,7 @@ namespace TwinStick
             }
         }
 
-
+        // Set bullet at index IsAlive flag to false
         public void Kill(int index)
         {
             Bullets[index].IsAlive = false;
@@ -88,6 +93,7 @@ namespace TwinStick
             }
         }
 
+        // Clear bullet list
         public void Reset()
         {
             Bullets.Clear();

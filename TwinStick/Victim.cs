@@ -25,12 +25,15 @@ namespace TwinStick
             }
         }
 
+        // Create victim with texture, at position, at using scale
         public Victim(Texture2D texture, Vector2 position, Vector2 scale)
             : base(texture, position, scale)
         {
 
         }
 
+        // Create victim with texutre, using scale
+        // (Set position after creation)
         public Victim(Texture2D texture, Vector2 scale)
             : base(texture, scale)
         {

@@ -25,7 +25,7 @@ namespace TwinStick
         Rectangle virtualScreenRect;
 
         // Game states
-        enum GameState { TitleScreen, Game, NextLevelScreen, ControlsScreen };
+        enum GameState { TitleScreen, Game, NextLevelScreen, ControlsScreen, Pause };
         GameState currentState;
         int currentLevel;
 
@@ -39,7 +39,9 @@ namespace TwinStick
 
         // Input states
         KeyboardState key;
+        KeyboardState lastKey;
         GamePadState gamePad;
+        GamePadState lastGamePad;
 
         // Texture for bullet
         Texture2D bulletTexture;
@@ -78,14 +80,14 @@ namespace TwinStick
         {
             graphics = new GraphicsDeviceManager(this);
 
-            graphics.PreferredBackBufferWidth = 864;
-            graphics.PreferredBackBufferHeight = 480;
+            //graphics.PreferredBackBufferWidth = 864;
+            //graphics.PreferredBackBufferHeight = 480;
             //graphics.PreferredBackBufferWidth = 1280;
             //graphics.PreferredBackBufferHeight = 720;
-            //graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            //graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             // Make fullscreen
-            Window.IsBorderless = false;
+            Window.IsBorderless = true;
             IsFixedTimeStep = false;
             graphics.ApplyChanges();
 
@@ -177,7 +179,7 @@ namespace TwinStick
             currentLevel = 0;
 
             // Reset values for start of game
-            ResetGame();
+            ResetGameForNextLevel();
          
         }
 
@@ -228,8 +230,17 @@ namespace TwinStick
                     GameStateUpdate(gameTime);
                     break;
                 }
+                case GameState.Pause:
+                {
+                    PauseScreenUpdate();
+                    break;
+                }
 
             }
+
+            // save last key and gamepad states to check for single key presses
+            lastKey = key;
+            lastGamePad = gamePad;
                 
             base.Update(gameTime);
         }
@@ -340,10 +351,15 @@ namespace TwinStick
                     break;
                 }
                 // Enter Game state
-                // reset the game
                 case GameState.Game:
                 {
-                    ResetGame();
+                    break;
+                }
+                // Enter pause state
+                // Show pause message
+                case GameState.Pause:
+                {
+                    message = "PAUSE";
                     break;
                 }
             }
@@ -406,13 +422,23 @@ namespace TwinStick
                 // Change state, remove text
                 message = String.Empty;
                 messageTimerElapsed = 0;
+                ResetGameForNextLevel();
                 ChangeState(GameState.Game);
             }
         }
 
-        // Update function for the main game state
+        // Update logic for the main game state
         public void GameStateUpdate(GameTime gameTime)
         {
+            // Pause game if enter or start pressed
+            if ((key.IsKeyDown(Keys.Enter) && 
+                lastKey.IsKeyUp(Keys.Enter)) || 
+                (gamePad.Buttons.Start == ButtonState.Pressed &&
+                lastGamePad.Buttons.Start == ButtonState.Released))
+            {
+                ChangeState(GameState.Pause);
+            }
+
             // Get input, update playerDirection and shootDirection vectors
             GameStateHandleInput();
 
@@ -458,6 +484,20 @@ namespace TwinStick
                     // level passed, change to next level state
                     ChangeState(GameState.NextLevelScreen);
                 }
+            }
+        }
+
+
+        // update logic for the pause screen
+        public void PauseScreenUpdate()
+        {
+            //  Go back to game if enter or start pressed
+            if ((key.IsKeyDown(Keys.Enter) &&
+                lastKey.IsKeyUp(Keys.Enter)) ||
+                (gamePad.Buttons.Start == ButtonState.Pressed &&
+                lastGamePad.Buttons.Start == ButtonState.Released))
+            {
+                ChangeState(GameState.Game);   
             }
         }
 
@@ -626,16 +666,18 @@ namespace TwinStick
         public void ChangeLevel()
         {
             currentLevel++;
-            enemyManager.EnemySpawnRate -= 0.3f;
+            enemyManager.EnemySpawnRate -= 0.2f;
 
             // increase zombie speed every 2 levels
             if (currentLevel % 2 == 0)
             {
-                enemyManager.EnemySpeed += 2f;
+                enemyManager.EnemySpeed += 1f;
             }
         }
 
-        public void ResetGame()
+        // Reset game values for the next level
+        // Score, enemySpawnRate, and enemySpeed are preserved from previous level
+        public void ResetGameForNextLevel()
         {
             // Move player to center
             //player.Position = new Vector2((VirtualWidth / 2) - (player.Width / 2), (VirtualHeight / 2) - (player.Height / 2));
@@ -656,9 +698,9 @@ namespace TwinStick
                 victimColor[i] = Color.White;
             }
 
+            // Clear out all enemies and bullets
             enemyManager.Reset();
             bulletManager.Reset();
-
         }
     }
 }

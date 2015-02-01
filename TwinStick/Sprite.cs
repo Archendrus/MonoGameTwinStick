@@ -48,8 +48,11 @@ namespace TwinStick
             this.texture = texture;
             this.scale = scale; 
             Position = position;
+
+            // Calculate actual sprite size
             Height = texture.Height * (int)scale.Y;
             Width = texture.Width * (int)scale.X;
+
             IsAlive = true;
             
         }
@@ -71,6 +74,7 @@ namespace TwinStick
         // Draw sprite at position at Game1.Scale
         public virtual void Draw(SpriteBatch spriteBatch)
         {
+            // Only draw if Sprite.IsAlive
             if (IsAlive)
             {
                 spriteBatch.Draw(
@@ -90,6 +94,7 @@ namespace TwinStick
         // Draw sprite at position, tint with color
         public virtual void Draw(SpriteBatch spriteBatch, Color color)
         {
+            // Only draw if Sprite.IsAlive
             if (IsAlive)
             {
                 spriteBatch.Draw(

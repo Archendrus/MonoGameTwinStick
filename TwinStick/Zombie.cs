@@ -49,6 +49,7 @@ namespace TwinStick
 
         public void Update(GameTime time, TileMap map, Player player, Victim victim)
         {
+            // Only update if Zombie.IsAlive
             if (IsAlive)
             {
                 float elapsed = (float)time.ElapsedGameTime.TotalSeconds;

@@ -31,6 +31,7 @@ namespace TwinStick
 
         public void Update(GameTime time, TileMap map, Rectangle virtualScreenRect)
         {
+            // Only update if Bullet.IsAlive
             if (IsAlive)
             {
                 // update position every frame
