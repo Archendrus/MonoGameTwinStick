@@ -25,7 +25,16 @@ namespace TwinStick
         Rectangle virtualScreenRect;
 
         // Game states
-        enum GameState { TitleScreen, Game, NextLevelScreen, ControlsScreen, Pause };
+        enum GameState
+        { 
+            TitleScreen,
+            Game,
+            NextLevelScreen,
+            ControlsScreen,
+            Pause,
+            GameOver
+        };
+
         GameState currentState;
         int currentLevel;
 
@@ -80,14 +89,13 @@ namespace TwinStick
         {
             graphics = new GraphicsDeviceManager(this);
 
-            //graphics.PreferredBackBufferWidth = 864;
-            //graphics.PreferredBackBufferHeight = 480;
-            //graphics.PreferredBackBufferWidth = 1280;
-            //graphics.PreferredBackBufferHeight = 720;
-            graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            graphics.PreferredBackBufferWidth = 864;
+            graphics.PreferredBackBufferHeight = 480;
+
+            //graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            //graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             // Make fullscreen
-            Window.IsBorderless = true;
+            Window.IsBorderless = false;
             IsFixedTimeStep = false;
             graphics.ApplyChanges();
 
@@ -179,8 +187,7 @@ namespace TwinStick
             currentLevel = 0;
 
             // Reset values for start of game
-            ResetGameForNextLevel();
-         
+            ResetGameForNextLevel();    
         }
 
         /// <summary>
@@ -200,12 +207,13 @@ namespace TwinStick
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
-
             // Get keyboard and gamepad states
             key = Keyboard.GetState();
             gamePad = GamePad.GetState(PlayerIndex.One);
+
+            // Exit game if back or esc pressed
+            if (gamePad.Buttons.Back == ButtonState.Pressed || key.IsKeyDown(Keys.Escape))
+                Exit();
 
             // Update the current state
             switch (currentState)
@@ -233,6 +241,11 @@ namespace TwinStick
                 case GameState.Pause:
                 {
                     PauseScreenUpdate();
+                    break;
+                }
+                case GameState.GameOver:
+                {
+                    GameOverScreenUpdate(gameTime);
                     break;
                 }
 
@@ -348,11 +361,13 @@ namespace TwinStick
                 case GameState.NextLevelScreen:
                 {
                     ChangeLevel();
+                    message = "LEVEL " + currentLevel;
                     break;
                 }
                 // Enter Game state
                 case GameState.Game:
                 {
+                    // No special init for game state
                     break;
                 }
                 // Enter pause state
@@ -360,6 +375,11 @@ namespace TwinStick
                 case GameState.Pause:
                 {
                     message = "PAUSE";
+                    break;
+                }
+                case GameState.GameOver:
+                {
+                    message = "GAME OVER";
                     break;
                 }
             }
@@ -372,9 +392,6 @@ namespace TwinStick
         // Displays Title until start or enter is pressed
         private void TitleScreenUpdate(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
-
             // Change state to controls screen if enter or start pressed
             if (key.IsKeyDown(Keys.Enter) || gamePad.Buttons.Start == ButtonState.Pressed)
             {
@@ -404,6 +421,7 @@ namespace TwinStick
                 if (currentControlMessage > controlMessages.Count - 1)
                 {
                     message = String.Empty;
+                    controlMessages.Clear();
                     ChangeState(GameState.NextLevelScreen);
                 }
             }
@@ -415,13 +433,13 @@ namespace TwinStick
         {
             // Show level message for two seconds
             // then change to game state
-            message = "LEVEL " + currentLevel;
             messageTimerElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (messageTimerElapsed > 3.0f)
             {
                 // Change state, remove text
                 message = String.Empty;
                 messageTimerElapsed = 0;
+                
                 ResetGameForNextLevel();
                 ChangeState(GameState.Game);
             }
@@ -461,17 +479,19 @@ namespace TwinStick
             enemyManager.Update(gameTime, player, tileMap, victim);
             bulletManager.Update(gameTime, player, tileMap, shootDirection, virtualScreenRect);
 
-            Console.WriteLine(enemyManager.EnemySpawnRate);
-            Console.WriteLine(enemyManager.EnemySpeed);
-
             // Check bullet collision with enemy
             UpdateBulletsAndCheckCollisions(gameTime);
-
 
             if (enemyManager.HadVictimCollision)
             {
                 victim.IsAlive = false;
                 UpdateVictimBoard(victimKilled);
+            }
+
+            if (enemyManager.HadPlayerCollision)
+            {
+                player.IsAlive = false;
+                ChangeState(GameState.GameOver);
             }
 
             // Check win/lose conditions
@@ -484,9 +504,12 @@ namespace TwinStick
                     // level passed, change to next level state
                     ChangeState(GameState.NextLevelScreen);
                 }
+                else
+                {
+                    ChangeState(GameState.GameOver);
+                }
             }
         }
-
 
         // update logic for the pause screen
         public void PauseScreenUpdate()
@@ -498,6 +521,22 @@ namespace TwinStick
                 lastGamePad.Buttons.Start == ButtonState.Released))
             {
                 ChangeState(GameState.Game);   
+            }
+        }
+
+        // Update logic for the game over screen
+        public void GameOverScreenUpdate(GameTime gameTime)
+        {
+            messageTimerElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (messageTimerElapsed > 3.0f)
+            {
+                // remove message, reset game, set player back to alive
+                // change to next level (level 1 after reset)
+                message = String.Empty;
+                messageTimerElapsed = 0;
+                ResetGame();
+                player.IsAlive = true;
+                ChangeState(GameState.NextLevelScreen);
             }
         }
 
@@ -701,6 +740,19 @@ namespace TwinStick
             // Clear out all enemies and bullets
             enemyManager.Reset();
             bulletManager.Reset();
+        }
+
+        // Reset all values for game
+        public void ResetGame()
+        {
+            // Reset everything for a new level
+            ResetGameForNextLevel();
+
+            // Also reset current level, score, and enemy values
+            currentLevel = 0;
+            enemyManager.EnemySpawnRate = 4.20f;
+            enemyManager.EnemySpeed = 15f;
+            score = 0;      
         }
     }
 }

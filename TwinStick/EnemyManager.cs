@@ -61,7 +61,8 @@ namespace TwinStick
         private Vector2 scale;
 
         // flag if victim collision occured during last update 
-        public bool HadVictimCollision { get; private set; } 
+        public bool HadVictimCollision { get; private set; }
+        public bool HadPlayerCollision { get; private set; }
 
         public EnemyManager(Texture2D zombieTexture, Rectangle virtualScreenRect, Vector2 scale)
         {
@@ -83,6 +84,7 @@ namespace TwinStick
 
             // Reset victim collision flag
             HadVictimCollision = false;
+            HadPlayerCollision = false;
 
             // Update all enemies
             // if enemy collides with victim, set victim collision flag
@@ -92,6 +94,11 @@ namespace TwinStick
                 if (victim.IsAlive && Enemies[i].CollisionRect.Intersects(victim.CollisionRect))
                 {
                     HadVictimCollision = true;
+                }
+
+                if (Enemies[i].CollisionRect.Intersects(player.CollisionRect))
+                {
+                    HadPlayerCollision = true;
                 }
             }
 
