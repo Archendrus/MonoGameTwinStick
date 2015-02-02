@@ -91,12 +91,15 @@ namespace TwinStick
             for (int i = 0; i < Enemies.Count; i++)
             {
                 Enemies[i].Update(gameTime, tileMap, player, victim);
+
+                // Check enemy collision with victim
                 if (victim.IsAlive && Enemies[i].CollisionRect.Intersects(victim.CollisionRect))
                 {
                     HadVictimCollision = true;
                 }
 
-                if (Enemies[i].CollisionRect.Intersects(player.CollisionRect))
+                // Check enemy collision with player
+                if (Enemies[i].HitBox.Intersects(player.HitBox))
                 {
                     HadPlayerCollision = true;
                 }

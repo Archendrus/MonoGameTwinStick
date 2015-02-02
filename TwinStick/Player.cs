@@ -16,6 +16,7 @@ namespace TwinStick
         public Vector2 Direction { get; set;}
         private float speed;
         
+        // Rectangle for collison with tiles
         public Rectangle CollisionRect
         {
             get
@@ -28,6 +29,20 @@ namespace TwinStick
             }   
         }
 
+       // Rectangle for collision with enemies
+       public Rectangle HitBox
+        {
+            get
+            {
+                return new Rectangle(
+                    (int)Position.X + (5 * (int)scale.X),
+                    (int)Position.Y + (1 * (int)scale.Y),
+                    (5 * (int)scale.X),
+                    (14 * (int)scale.Y));
+            }
+        }
+        
+        // 6px in, 4 width, 3 down, 10 height
         public Player(Texture2D texture, Vector2 position, Vector2 scale) 
             : base(texture, position, scale)
         {

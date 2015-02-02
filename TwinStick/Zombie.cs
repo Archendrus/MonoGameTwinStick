@@ -35,6 +35,19 @@ namespace TwinStick
             }
         }
 
+        // Rectangle for collision with player
+        public Rectangle HitBox
+        {
+            get
+            {
+                return new Rectangle(
+                    (int)Position.X + (5 * (int)scale.X),
+                    (int)Position.Y + (2 * (int)scale.Y),
+                    (6 * (int)scale.X),
+                    (12 * (int)scale.Y));
+            }
+        }
+
         public Zombie(Texture2D texture, Vector2 position, float speed, Vector2 scale)
             : base(texture, position, scale)
         {

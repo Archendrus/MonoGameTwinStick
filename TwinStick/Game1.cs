@@ -18,8 +18,8 @@ namespace TwinStick
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         RenderTarget2D renderTarget;
-        int VirtualWidth = 800;
-        int VirtualHeight = 480;
+        int VirtualWidth;
+        int VirtualHeight;
         Vector2 Scale;     
         Rectangle screenRectangle;
         Rectangle virtualScreenRect;
@@ -60,21 +60,23 @@ namespace TwinStick
         // Text and messages
         SpriteFont textFont;
         String message;
-        List<String> controlMessages;
+        List<String> messagesList;
         Color messageColor;
-        float messageTimerElapsed = 0;
-        int currentControlMessage = 0;
+        float messageTimerElapsed;
+        int currentMessage;
 
         // Player/bullet update args
         Vector2 playerDirection;
         Vector2 shootDirection;
+        int playerStartX;
+        int playerStartY;
 
         // Random number generator for victim spawn
         Random random;
 
         // Score and surviors
         SpriteFont scoreFont;
-        int score = 0;
+        int score;      
         const int TOTAL_VICTIMS = 8;
         int currentVictim;
         int saved;
@@ -83,6 +85,10 @@ namespace TwinStick
         Color victimSave, victimKilled;
         RenderTarget2D victimBoardRenderTarget;
         Rectangle victimBoardRenderTargetRect;
+
+        // Lives
+        int lives;
+        Sprite livesSprite;
 
         public Game1()
             : base()
@@ -110,6 +116,10 @@ namespace TwinStick
         /// </summary>
         protected override void Initialize()
         {
+            // Initialize width, height for virtual resolution
+            VirtualWidth = 800;
+            VirtualHeight = 480;
+
             // Create screen rectangle at size of user's desktop resolution
             screenRectangle = new Rectangle(
                 0, 0, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight);
@@ -128,7 +138,10 @@ namespace TwinStick
             victimBoardRenderTargetRect = new Rectangle(512, 4, 256, 24);
 
             // Initialize values for messages
-            messageColor = new Color(32, 92, 32);
+            messageColor = new Color(64, 124, 64);
+
+            // Create message list for multiple messages
+            messagesList = new List<String>();
 
             // Start on titlescreen
             ChangeState(GameState.TitleScreen);
@@ -163,12 +176,16 @@ namespace TwinStick
             // Create player
             temp = Content.Load<Texture2D>("hero");
             player = new Player(temp, Scale);
-            
+            playerStartX = 260;
+            playerStartY = 220;
+
+            // Create sprite for lives display
+            livesSprite = new Sprite(temp, Scale);
+            livesSprite.IsAlive = false;
+
             // Create zombies and zombie list
             zombieTexture = Content.Load<Texture2D>("zombie");
             enemyManager = new EnemyManager(zombieTexture, virtualScreenRect, Scale);
-            enemyManager.EnemySpawnRate = 4.20f;
-            enemyManager.EnemySpeed = 15f;
            
             // bullets
             bulletTexture = Content.Load<Texture2D>("bullet");
@@ -183,11 +200,8 @@ namespace TwinStick
             // RNG for victim spawn
             random = new Random();
 
-            // Start at level 0, game will increment to 1 before starting
-            currentLevel = 0;
-
             // Reset values for start of game
-            ResetGameForNextLevel();    
+            ResetGame();    
         }
 
         /// <summary>
@@ -230,7 +244,7 @@ namespace TwinStick
                 }
                 case GameState.NextLevelScreen:
                 {
-                    UpdateNextLevelScreen(gameTime);
+                    NextLevelScreenUpdate(gameTime);
                     break;
                 }
                 case GameState.Game:
@@ -248,12 +262,14 @@ namespace TwinStick
                     GameOverScreenUpdate(gameTime);
                     break;
                 }
-
             }
 
             // save last key and gamepad states to check for single key presses
             lastKey = key;
             lastGamePad = gamePad;
+
+            Console.WriteLine(enemyManager.EnemySpawnRate);
+            Console.WriteLine(enemyManager.EnemySpeed);
                 
             base.Update(gameTime);
         }
@@ -297,6 +313,7 @@ namespace TwinStick
             bulletManager.Draw(spriteBatch);
 
             enemyManager.Draw(spriteBatch);
+
             // Draw victim if one is spawned
             victim.Draw(spriteBatch);
            
@@ -306,6 +323,9 @@ namespace TwinStick
                 Vector2 textSize = textFont.MeasureString(message);
                 Vector2 drawPos = new Vector2((VirtualWidth / 2) - (textSize.X / 2), (VirtualHeight / 2) - (textSize.Y + 48));
                 spriteBatch.DrawString(textFont, message, drawPos, messageColor);
+
+                // draw lives sprite next to text if IsAlive
+                livesSprite.Draw(spriteBatch);
             }
             
             spriteBatch.End();
@@ -350,18 +370,22 @@ namespace TwinStick
                 // create a list of message to be shown
                 case GameState.ControlsScreen:
                 {
-                    controlMessages = new List<String>();
-                    controlMessages.Add("WASD / LEFT STICK TO MOVE");
-                    controlMessages.Add("ARROWS / RIGHT STICK TO SHOOT");
-                    controlMessages.Add("SHOOT ZOMBIES!\nSAVE SURVIORS!");
+                    messagesList = new List<String>();
+                    messagesList.Add("WASD / LEFT STICK TO MOVE");
+                    messagesList.Add("ARROWS / RIGHT STICK TO SHOOT");
+                    messagesList.Add("SHOOT ZOMBIES!\nSAVE SURVIORS!");
                     break;
                 }
                 // Enter NextLevelScreen
-                // Call ChangeLevel()
                 case GameState.NextLevelScreen:
                 {
-                    ChangeLevel();
-                    message = "LEVEL " + currentLevel;
+                    // Set values for lives sprite
+                    livesSprite.Position = new Vector2(348, (VirtualHeight / 2) - (livesSprite.Height + 50));
+                    livesSprite.IsAlive = true;
+
+                    // Add messages
+                    messagesList.Add("   X " + lives);
+                    messagesList.Add("LEVEL " + currentLevel);
                     break;
                 }
                 // Enter Game state
@@ -406,22 +430,23 @@ namespace TwinStick
         private void ControlsScreenUpdate(GameTime gameTime)
         {
             // get current message
-            message = controlMessages[currentControlMessage];
+            message = messagesList[currentMessage];
 
             // total elapsed time since last message
             messageTimerElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (messageTimerElapsed > 2.0f)
             {
                 // increment the message, reset the timer
-                currentControlMessage++;
+                currentMessage++;
                 messageTimerElapsed = 0;
 
                 // all messages shown, set message to String.Empty to stop drawing
-                // change state to game state
-                if (currentControlMessage > controlMessages.Count - 1)
+                // change state to NextLevel state
+                if (currentMessage > messagesList.Count - 1)
                 {
                     message = String.Empty;
-                    controlMessages.Clear();
+                    messagesList.Clear();
+                    ResetGameForNextLevel();
                     ChangeState(GameState.NextLevelScreen);
                 }
             }
@@ -429,19 +454,34 @@ namespace TwinStick
         
         // Update logic for NextLevelScreen
         // shows level message then changes to game state
-        public void UpdateNextLevelScreen(GameTime gameTime)
+        public void NextLevelScreenUpdate(GameTime gameTime)
         {
-            // Show level message for two seconds
-            // then change to game state
+            // Get current message
+            message = messagesList[currentMessage];
+
+            // total elapsed time since last message
             messageTimerElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (messageTimerElapsed > 3.0f)
             {
-                // Change state, remove text
-                message = String.Empty;
+                // increment the message, reset the timer
+                currentMessage++;
                 messageTimerElapsed = 0;
-                
-                ResetGameForNextLevel();
-                ChangeState(GameState.Game);
+
+                // Remove lives sprite if not displaying lives
+                if (currentMessage > 0)
+                {
+                    livesSprite.IsAlive = false;
+                }
+
+                // all messages shown, set message to String.Empty to stop drawing
+                // change state to game state
+                if (currentMessage > messagesList.Count - 1)
+                {
+                    message = String.Empty;
+                    messagesList.Clear();
+                    player.IsAlive = true;
+                    ChangeState(GameState.Game);
+                }
             }
         }
 
@@ -469,6 +509,7 @@ namespace TwinStick
             // Check victim save
             if (victim.IsAlive && player.CollisionRect.Intersects(victim.CollisionRect))
             {
+                // Remove victim, update score, saved and victim board
                 victim.IsAlive = false;
                 score += 500;
                 saved++;
@@ -488,10 +529,25 @@ namespace TwinStick
                 UpdateVictimBoard(victimKilled);
             }
 
+            // check enemy collision with player
             if (enemyManager.HadPlayerCollision)
             {
+                // Hide player, decrement lives by one
                 player.IsAlive = false;
-                ChangeState(GameState.GameOver);
+                lives--;
+
+                // If still have lives
+                if (lives > 0)
+                {
+                    // Reset level preserving score and victims
+                    ResetLevel();
+                    ChangeState(GameState.NextLevelScreen);
+                }
+                else  // No lives left
+                {
+                    // Go to game over
+                    ChangeState(GameState.GameOver);
+                }             
             }
 
             // Check win/lose conditions
@@ -501,7 +557,10 @@ namespace TwinStick
                 // If saved at least half the victims, go to next level
                 if (saved >= TOTAL_VICTIMS / 2)
                 {
-                    // level passed, change to next level state
+                    // level passed, change level, reset values for next level
+                    // and change state
+                    ChangeLevel();
+                    ResetGameForNextLevel();
                     ChangeState(GameState.NextLevelScreen);
                 }
                 else
@@ -534,8 +593,9 @@ namespace TwinStick
                 // change to next level (level 1 after reset)
                 message = String.Empty;
                 messageTimerElapsed = 0;
+
+                // Reset the entire game
                 ResetGame();
-                player.IsAlive = true;
                 ChangeState(GameState.NextLevelScreen);
             }
         }
@@ -714,17 +774,38 @@ namespace TwinStick
             }
         }
 
+        // Reset the current level preserving score, lives, and victims saved
+        public void ResetLevel()
+        {
+            // Move player to center
+            player.Position = new Vector2(playerStartX, playerStartY);
+
+            victim.IsAlive = false;
+
+            // Clear out all enemies and bullets
+            enemyManager.Reset();
+            bulletManager.Reset();
+
+            // Reset message values
+            messageTimerElapsed = 0;
+            currentMessage = 0;
+        }
+
         // Reset game values for the next level
         // Score, enemySpawnRate, and enemySpeed are preserved from previous level
         public void ResetGameForNextLevel()
         {
             // Move player to center
-            //player.Position = new Vector2((VirtualWidth / 2) - (player.Width / 2), (VirtualHeight / 2) - (player.Height / 2));
-            player.Position = new Vector2(200f, 200f);
+            player.Position = new Vector2(playerStartX, playerStartY);
+
             // Reset victim
             victim.IsAlive = false;
             currentVictim = 0;
             saved = 0;
+
+            // Reset message values
+            messageTimerElapsed = 0;
+            currentMessage = 0;
 
             // build parallel arrays for victim board sprites and color tints
             victims = new Sprite[TOTAL_VICTIMS];
@@ -750,9 +831,11 @@ namespace TwinStick
 
             // Also reset current level, score, and enemy values
             currentLevel = 0;
+            score = 0;
+            lives = 3;
             enemyManager.EnemySpawnRate = 4.20f;
             enemyManager.EnemySpeed = 15f;
-            score = 0;      
+            ChangeLevel();           
         }
     }
 }
