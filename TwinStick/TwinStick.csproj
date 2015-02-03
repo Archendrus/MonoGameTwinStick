@@ -68,6 +68,7 @@
     <Compile Include="Circle.cs" />
     <Compile Include="EnemyManager.cs" />
     <Compile Include="Game1.cs" />
+    <Compile Include="Particle.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -110,6 +110,24 @@ namespace TwinStick
             }
             
         }
+
+        public virtual void Draw(SpriteBatch spriteBatch, float angle, Vector2 origin)
+        {
+            // Only draw if Sprite.IsAlive
+            if (IsAlive)
+            {
+                spriteBatch.Draw(
+                    texture,
+                    new Vector2((int)Position.X, (int)Position.Y),
+                    null,
+                    Color.White,
+                    angle,
+                    origin,
+                    scale,
+                    SpriteEffects.None,
+                    0.0f);
+            }
+        }
         
     }
 }
