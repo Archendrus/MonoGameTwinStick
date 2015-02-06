@@ -95,16 +95,14 @@ namespace TwinStick
         {
             graphics = new GraphicsDeviceManager(this);
 
-            graphics.PreferredBackBufferWidth = 864;
+            graphics.PreferredBackBufferWidth = 800;
             graphics.PreferredBackBufferHeight = 480;
 
-            //graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            //graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-            // Make fullscreen
-            Window.IsBorderless = false;
-            IsFixedTimeStep = false;
+            graphics.HardwareModeSwitch = false;
             graphics.ApplyChanges();
 
+            IsFixedTimeStep = false;
+           
             Content.RootDirectory = "Content";
         }
 
@@ -120,7 +118,7 @@ namespace TwinStick
             VirtualWidth = 800;
             VirtualHeight = 480;
 
-            // Create screen rectangle at size of user's desktop resolution
+            // Create screen rectangle at size of backbuffer
             screenRectangle = new Rectangle(
                 0, 0, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight);
 
@@ -134,6 +132,7 @@ namespace TwinStick
 
             // Create render target for drawing survior score board
             victimBoardRenderTarget = new RenderTarget2D(GraphicsDevice, 256, 32);
+
             // Create rectangle for draw position
             victimBoardRenderTargetRect = new Rectangle(512, 4, 256, 24);
 
@@ -229,6 +228,12 @@ namespace TwinStick
             if (gamePad.Buttons.Back == ButtonState.Pressed || key.IsKeyDown(Keys.Escape))
                 Exit();
 
+            // Toggle fullscreen on F1
+            if(key.IsKeyDown(Keys.F1) && lastKey.IsKeyUp(Keys.F1))
+            {
+                graphics.ToggleFullScreen();
+            }
+
             // Update the current state
             switch (currentState)
             {
@@ -268,8 +273,8 @@ namespace TwinStick
             lastKey = key;
             lastGamePad = gamePad;
 
-            Console.WriteLine(enemyManager.EnemySpawnRate);
-            Console.WriteLine(enemyManager.EnemySpeed);
+            //Console.WriteLine(enemyManager.EnemySpawnRate);
+            //Console.WriteLine(enemyManager.EnemySpeed);
                 
             base.Update(gameTime);
         }
