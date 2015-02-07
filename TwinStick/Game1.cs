@@ -17,12 +17,8 @@ namespace TwinStick
         // Graphics/screen 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        RenderTarget2D renderTarget;
-        int VirtualWidth;
-        int VirtualHeight;
         Vector2 Scale;     
         Rectangle screenRectangle;
-        Rectangle virtualScreenRect;
 
         // Game states
         enum GameState
@@ -115,21 +111,13 @@ namespace TwinStick
         /// </summary>
         protected override void Initialize()
         {
-            // Initialize width, height for virtual resolution
-            VirtualWidth = 800;
-            VirtualHeight = 480;
 
             // Create screen rectangle at size of backbuffer
             screenRectangle = new Rectangle(
                 0, 0, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight);
 
-            virtualScreenRect = new Rectangle(0, 0, VirtualWidth, VirtualHeight);
-
             // Create a 2x scale
             Scale = new Vector2(2, 2);
-
-            // Create render target at Virtual resolution
-            renderTarget = new RenderTarget2D(GraphicsDevice, VirtualWidth, VirtualHeight);
 
             // Create render target for drawing survior score board
             victimBoardRenderTarget = new RenderTarget2D(GraphicsDevice, 256, 32);
@@ -185,7 +173,7 @@ namespace TwinStick
 
             // Create zombies and zombie list
             zombieTexture = Content.Load<Texture2D>("zombie");
-            enemyManager = new EnemyManager(zombieTexture, virtualScreenRect, Scale);
+            enemyManager = new EnemyManager(zombieTexture, screenRectangle, Scale);
            
             // bullets
             bulletTexture = Content.Load<Texture2D>("bullet");
@@ -229,7 +217,7 @@ namespace TwinStick
             if (gamePad.Buttons.Back == ButtonState.Pressed || key.IsKeyDown(Keys.Escape))
                 Exit();
 
-            // Toggle fullscreen on F1
+            // Toggle fullscreen on F1 or Y Button
             if((key.IsKeyDown(Keys.F1) && lastKey.IsKeyUp(Keys.F1)) || 
                 (gamePad.Buttons.Y == ButtonState.Pressed && lastGamePad.Buttons.Y == ButtonState.Released))
             {
@@ -274,10 +262,7 @@ namespace TwinStick
             // save last key and gamepad states to check for single key presses
             lastKey = key;
             lastGamePad = gamePad;
-
-            //Console.WriteLine(enemyManager.EnemySpawnRate);
-            //Console.WriteLine(enemyManager.EnemySpeed);
-                
+              
             base.Update(gameTime);
         }
       
@@ -289,15 +274,12 @@ namespace TwinStick
         {
             // Draw the victim board to victimBoardRenderTarget
             DrawVictimBoard();
-
-            // Set Render to 800X480 render target
-            GraphicsDevice.SetRenderTarget(renderTarget);
-            GraphicsDevice.Clear(Color.CornflowerBlue);
             
 
-            // ******************************************************
-            // Drawing to render target at virtual resolution
-            // *******************************************************
+            // Clear screen
+            GraphicsDevice.Clear(Color.CornflowerBlue);
+            
+            // Draw to screen
             spriteBatch.Begin(
                 SpriteSortMode.Deferred,
                 BlendState.AlphaBlend,
@@ -314,10 +296,10 @@ namespace TwinStick
             // draw the victim scoreboard
             spriteBatch.Draw(victimBoardRenderTarget, victimBoardRenderTargetRect, Color.White);
 
-            // draw player over bullets
-            player.Draw(spriteBatch);
-
             bulletManager.Draw(spriteBatch);
+
+            // draw player, enemies, and victims over bullets
+            player.Draw(spriteBatch);
 
             enemyManager.Draw(spriteBatch);
 
@@ -327,8 +309,10 @@ namespace TwinStick
             // Draw any messages centered on the screen
             if (message != String.Empty)
             {
+                int width = screenRectangle.Width;
+                int height = screenRectangle.Height;
                 Vector2 textSize = textFont.MeasureString(message);
-                Vector2 drawPos = new Vector2((VirtualWidth / 2) - (textSize.X / 2), (VirtualHeight / 2) - (textSize.Y + 48));
+                Vector2 drawPos = new Vector2((width / 2) - (textSize.X / 2), (height / 2) - (textSize.Y + 48));
                 spriteBatch.DrawString(textFont, message, drawPos, messageColor);
 
                 // draw lives sprite next to text if IsAlive
@@ -337,26 +321,8 @@ namespace TwinStick
             
             spriteBatch.End();
 
-            // ***********************************************************************
-            // Drawing render target to screen
-            // **********************************************************************
-
-            // Set back to screen, scale render target up and draw to screen
-            GraphicsDevice.SetRenderTarget(null);
-            spriteBatch.Begin(
-                SpriteSortMode.Deferred,
-                BlendState.AlphaBlend,
-                SamplerState.PointClamp,
-                DepthStencilState.None,
-                RasterizerState.CullCounterClockwise);
-
-            spriteBatch.Draw(renderTarget, screenRectangle, Color.White);
-
-            spriteBatch.End();
-
             base.Draw(gameTime);
         }
-
 
         // Run initialization logic for newState
         // Clear messages then change to newState
@@ -389,7 +355,7 @@ namespace TwinStick
                 case GameState.NextLevelScreen:
                 {
                     // Set values for lives sprite
-                    livesSprite.Position = new Vector2(348, (VirtualHeight / 2) - (livesSprite.Height + 50));
+                    livesSprite.Position = new Vector2(348, (screenRectangle.Height / 2) - (livesSprite.Height + 50));
                     livesSprite.IsAlive = true;
 
                     // Add messages
@@ -513,7 +479,7 @@ namespace TwinStick
             SpawnVictims();
 
             // Update the player
-            player.Update(gameTime, tileMap, playerDirection, virtualScreenRect);
+            player.Update(gameTime, tileMap, playerDirection, screenRectangle);
 
             // Check victim save
             if (victim.IsAlive && player.CollisionRect.Intersects(victim.CollisionRect))
@@ -527,7 +493,7 @@ namespace TwinStick
 
             // Update enemy and bullet managers
             enemyManager.Update(gameTime, player, tileMap, victim);
-            bulletManager.Update(gameTime, player, tileMap, shootDirection, virtualScreenRect);
+            bulletManager.Update(gameTime, player, tileMap, shootDirection, screenRectangle);
 
             // Check bullet collision with enemy
             UpdateBulletsAndCheckCollisions(gameTime);
@@ -639,7 +605,6 @@ namespace TwinStick
                 playerDirection.Y = 1f;
             }
 
-
             // Handle shooting input
             // Set opposite axis to zero to disallow diagonal shooting
             // .5 and -.5 as the threshold for stick axis so won't change shoot direction
@@ -648,22 +613,18 @@ namespace TwinStick
             if (key.IsKeyDown(Keys.Left) || gamePad.ThumbSticks.Right.X < -.5)
             {
                 shootDirection = new Vector2(-1, 0);
-                //shootDirection.X = -1;
             }
             if (key.IsKeyDown(Keys.Right) || gamePad.ThumbSticks.Right.X > .5)
             {
                 shootDirection = new Vector2(1, 0);
-                //shootDirection.X = 1;
             }
             if (key.IsKeyDown(Keys.Up) || gamePad.ThumbSticks.Right.Y > .5)
             {
                 shootDirection = new Vector2(0, -1);
-                //shootDirection.Y = -1;
             }
             if (key.IsKeyDown(Keys.Down) || gamePad.ThumbSticks.Right.Y < -.5)
             {
                 shootDirection = new Vector2(0, 1);
-                //shootDirection.Y = 1;
             }
         }
 
@@ -767,6 +728,9 @@ namespace TwinStick
                 victims[i].Draw(spriteBatch, victimColor[i]);
             }
             spriteBatch.End();
+
+            // Set render target back to screen
+            GraphicsDevice.SetRenderTarget(null);
         }
 
         // Increment the level and change 

@@ -58,7 +58,7 @@ namespace TwinStick
             speed = 175f;
         }
 
-        public void Update(GameTime time, TileMap map, Vector2 direction, Rectangle virtualScreenRect)
+        public void Update(GameTime time, TileMap map, Vector2 direction, Rectangle screenRect)
         {
             float elapsed = (float)time.ElapsedGameTime.TotalSeconds;
             
@@ -80,21 +80,21 @@ namespace TwinStick
             }
 
             // Wrap around the screen in all directions
-            if (Position.X > virtualScreenRect.Width)
+            if (Position.X > screenRect.Width)
             {
                 Position = new Vector2(-BoundingRect.Width, Position.Y);
             }
             if (Position.X < -BoundingRect.Width)
             {
-                Position = new Vector2(virtualScreenRect.Width, Position.Y);
+                Position = new Vector2(screenRect.Width, Position.Y);
             }
-            if (Position.Y > virtualScreenRect.Height)
+            if (Position.Y > screenRect.Height)
             {
                 Position = new Vector2(Position.X, -BoundingRect.Height);
             }
             if (Position.Y < -BoundingRect.Height)
             {
-                Position = new Vector2(Position.X, virtualScreenRect.Height);
+                Position = new Vector2(Position.X, screenRect.Height);
             }
         }
 

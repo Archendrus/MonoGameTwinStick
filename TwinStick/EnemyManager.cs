@@ -64,7 +64,7 @@ namespace TwinStick
         public bool HadVictimCollision { get; private set; }
         public bool HadPlayerCollision { get; private set; }
 
-        public EnemyManager(Texture2D zombieTexture, Rectangle virtualScreenRect, Vector2 scale)
+        public EnemyManager(Texture2D zombieTexture, Rectangle screenRect, Vector2 scale)
         {
             Enemies = new List<Zombie>();
             this.zombieTexture = zombieTexture;
@@ -73,7 +73,7 @@ namespace TwinStick
             EnemySpeed = 20f;
             this.scale = scale;
 
-            InitSpawnPoints(virtualScreenRect);
+            InitSpawnPoints(screenRect);
         }
 
         // Update all enemies in enemy list
@@ -124,15 +124,15 @@ namespace TwinStick
 
 
         // Create a list of four enemy spawn points at N,S,E, and W
-        private void InitSpawnPoints(Rectangle virtualScreenRect)
+        private void InitSpawnPoints(Rectangle screenRect)
         {
             spawnPoints = new List<Vector2>();
-            float centerY = (virtualScreenRect.Height / 2.0f) - (zombieTexture.Height / 2.0f);
-            float centerX = (virtualScreenRect.Width / 2.0f) - (zombieTexture.Width / 2.0f);
+            float centerY = (screenRect.Height / 2.0f) - (zombieTexture.Height / 2.0f);
+            float centerX = (screenRect.Width / 2.0f) - (zombieTexture.Width / 2.0f);
             spawnPoints.Add(new Vector2(0 - (zombieTexture.Width / 2.0f), centerY));
-            spawnPoints.Add(new Vector2(virtualScreenRect.Width + (zombieTexture.Width / 2.0f), centerY));
+            spawnPoints.Add(new Vector2(screenRect.Width + (zombieTexture.Width / 2.0f), centerY));
             spawnPoints.Add(new Vector2(centerX, 0 - (zombieTexture.Height / 2.0f)));
-            spawnPoints.Add(new Vector2(centerX, virtualScreenRect.Height + (zombieTexture.Height / 2.0f)));
+            spawnPoints.Add(new Vector2(centerX, screenRect.Height + (zombieTexture.Height / 2.0f)));
         }
 
         // spawn an enemy at each point in spawnPoints at spawnRate

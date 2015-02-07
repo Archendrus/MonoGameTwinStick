@@ -29,7 +29,7 @@ namespace TwinStick
             this.direction = direction;
         }
 
-        public void Update(GameTime time, TileMap map, Rectangle virtualScreenRect)
+        public void Update(GameTime time, TileMap map, Rectangle screenRect)
         {
             // Only update if Bullet.IsAlive
             if (IsAlive)
@@ -40,7 +40,7 @@ namespace TwinStick
                 Position += direction * speed * elapsed;
 
                 // kill if offscreen
-                if (!virtualScreenRect.Contains(BoundingRect))
+                if (!screenRect.Contains(BoundingRect))
                 {
                     IsAlive = false;
                 }

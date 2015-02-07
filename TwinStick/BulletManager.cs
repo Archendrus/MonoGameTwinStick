@@ -24,7 +24,7 @@ namespace TwinStick
             shotTimerElapsed = 0;
         }
 
-        public void Update(GameTime gameTime, Player player, TileMap tileMap, Vector2 shootDirection, Rectangle virtualScreenRect)
+        public void Update(GameTime gameTime, Player player, TileMap tileMap, Vector2 shootDirection, Rectangle screenRect)
         {
             // Create bullets
             CreateBullets(gameTime, player, shootDirection);
@@ -32,7 +32,7 @@ namespace TwinStick
             // Update the bullets
             for (int i = 0; i < Bullets.Count; i++)
             {
-                Bullets[i].Update(gameTime, tileMap, virtualScreenRect);
+                Bullets[i].Update(gameTime, tileMap, screenRect);
             }
 
             // Remove inactive bullets from list
