@@ -204,6 +204,7 @@ namespace TwinStick
         public void Reset()
         {
             Enemies.Clear();
+            enemySpawnElapsed = 0;
         }
     }
 }

@@ -98,6 +98,7 @@ namespace TwinStick
             graphics.PreferredBackBufferWidth = 800;
             graphics.PreferredBackBufferHeight = 480;
 
+            // Use windowed fullscreen
             graphics.HardwareModeSwitch = false;
             graphics.ApplyChanges();
 
@@ -229,7 +230,8 @@ namespace TwinStick
                 Exit();
 
             // Toggle fullscreen on F1
-            if(key.IsKeyDown(Keys.F1) && lastKey.IsKeyUp(Keys.F1))
+            if((key.IsKeyDown(Keys.F1) && lastKey.IsKeyUp(Keys.F1)) || 
+                (gamePad.Buttons.Y == ButtonState.Pressed && lastGamePad.Buttons.Y == ButtonState.Released))
             {
                 graphics.ToggleFullScreen();
             }
@@ -378,6 +380,8 @@ namespace TwinStick
                     messagesList = new List<String>();
                     messagesList.Add("WASD / LEFT STICK TO MOVE");
                     messagesList.Add("ARROWS / RIGHT STICK TO SHOOT");
+                    messagesList.Add("F1 / Y BUTTON");
+                    messagesList.Add("TO TOGGLE FULLSCREEN/WINDOW");
                     messagesList.Add("SHOOT ZOMBIES!\nSAVE SURVIORS!");
                     break;
                 }
