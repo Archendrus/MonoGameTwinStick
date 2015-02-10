@@ -5,10 +5,14 @@ using System.Text;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
 
 namespace TwinStick
 {
+    // EnemyManager handles Zombie creation, update, draw for all Zombies
+    // performs collision detection with other Zombies, player, and victim
+    // flags HadPlayerCollision and HadVictimCollision are set if collision 
+    // of these types occured in the current update loop
     class EnemyManager
     {
         public List<Zombie> Enemies { get; private set; }  // List of enemies
@@ -60,11 +64,13 @@ namespace TwinStick
         
         private Vector2 scale;
 
+        private SoundEffect explodeSound;
+
         // flag if victim collision occured during last update 
         public bool HadVictimCollision { get; private set; }
         public bool HadPlayerCollision { get; private set; }
 
-        public EnemyManager(Texture2D zombieTexture, Rectangle screenRect, Vector2 scale)
+        public EnemyManager(Texture2D zombieTexture, Rectangle screenRect, Vector2 scale, SoundEffect sound)
         {
             Enemies = new List<Zombie>();
             this.zombieTexture = zombieTexture;
@@ -72,7 +78,7 @@ namespace TwinStick
             EnemySpawnRate = 3.10f;
             EnemySpeed = 20f;
             this.scale = scale;
-
+            explodeSound = sound;
             InitSpawnPoints(screenRect);
         }
 
@@ -181,9 +187,11 @@ namespace TwinStick
         }
 
         // Set enemy at index IsAlive flag to false
+        // and play sound effect
         public void Kill(int index)
         {
             Enemies[index].IsAlive = false;
+            explodeSound.Play();
         }
 
         // Remove all inactive sprites from bullets and enemies

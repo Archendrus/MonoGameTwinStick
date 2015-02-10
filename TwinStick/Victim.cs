@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TwinStick
 {
+    // Victim sprite
     class Victim : Sprite
     {
 

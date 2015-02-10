@@ -5,23 +5,28 @@ using System.Text;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Audio;
 
 namespace TwinStick
 {
+    // BulletManager handles creation, update, and draw
+    // for all bullets in the game
     class BulletManager
     {
         public List<Bullet> Bullets { get; private set; }  // list of bullets
         Texture2D bulletTexture;  // texture to use for bullets
         float shotTimerElapsed;  // accumulates time since last shot
+        SoundEffect shotSound;
 
         Vector2 scale;
 
-        public BulletManager(Texture2D bulletTexture, Vector2 scale)
+        public BulletManager(Texture2D bulletTexture, Vector2 scale, SoundEffect sound)
         {
             Bullets = new List<Bullet>();
             this.bulletTexture = bulletTexture;
             this.scale = scale;
             shotTimerElapsed = 0;
+            shotSound = sound;
         }
 
         public void Update(GameTime gameTime, Player player, TileMap tileMap, Vector2 shootDirection, Rectangle screenRect)
@@ -69,8 +74,9 @@ namespace TwinStick
                         player.Position.X + ((player.Width / 2.0f) - (bullet.Width / 2.0f)),
                         player.Position.Y + ((player.Height / 2.0f) - (bullet.Height / 2.0f)));
                     Bullets.Add(bullet);
-                    // reset timer
+                    // reset timer and play sound effect
                     shotTimerElapsed = 0;
+                    shotSound.Play();
                 }
             }
         }

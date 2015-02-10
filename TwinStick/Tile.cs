@@ -9,6 +9,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TwinStick
 {  
+    // Single tile
+    // Has width, height, and IsSolid flag
+    // Stores source rectangle to draw from tile sheet
     class Tile
     {
         public static int Width { get; private set; }

@@ -7,6 +7,8 @@ using Microsoft.Xna.Framework;
 
 namespace TwinStick
 {
+    // Circle used for collision detection
+    // and resolution
     class Circle
     {
         public Vector2 Position { get; private set; }

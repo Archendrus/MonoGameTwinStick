@@ -6,6 +6,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
 
 namespace TwinStick
 {
@@ -41,6 +42,7 @@ namespace TwinStick
 
         EnemyManager enemyManager;
         BulletManager bulletManager;
+        ParticleEngine particleEngine;
 
         // Input states
         KeyboardState key;
@@ -81,6 +83,7 @@ namespace TwinStick
         Color victimSave, victimKilled;
         RenderTarget2D victimBoardRenderTarget;
         Rectangle victimBoardRenderTargetRect;
+        SoundEffect victimSaveSound;
 
         // Lives
         int lives;
@@ -102,7 +105,7 @@ namespace TwinStick
            
             Content.RootDirectory = "Content";
         }
-
+   
         /// <summary>
         /// Allows the game to perform any initialization it needs to before starting to run.
         /// This is where it can query for any required services and load any non-graphic
@@ -130,6 +133,9 @@ namespace TwinStick
 
             // Create message list for multiple messages
             messagesList = new List<String>();
+
+            // Reset state delay time
+            //stateChangeDelay = 0;
 
             // Start on titlescreen
             ChangeState(GameState.TitleScreen);
@@ -161,6 +167,10 @@ namespace TwinStick
             temp = Content.Load<Texture2D>("tiles");
             tileMap = new TileMap(temp, Scale);
 
+            // Create particle engine
+            temp = Content.Load<Texture2D>("particle");
+            particleEngine = new ParticleEngine(temp, Vector2.Zero, Scale);
+
             // Create player
             temp = Content.Load<Texture2D>("hero");
             player = new Player(temp, Scale);
@@ -173,17 +183,21 @@ namespace TwinStick
 
             // Create zombies and zombie list
             zombieTexture = Content.Load<Texture2D>("zombie");
-            enemyManager = new EnemyManager(zombieTexture, screenRectangle, Scale);
+            SoundEffect sound = Content.Load<SoundEffect>("explode");
+            enemyManager = new EnemyManager(zombieTexture, screenRectangle, Scale, sound);
            
             // bullets
             bulletTexture = Content.Load<Texture2D>("bullet");
-            bulletManager = new BulletManager(bulletTexture, Scale);
+            sound = Content.Load<SoundEffect>("shoot");
+            bulletManager = new BulletManager(bulletTexture, Scale, sound);
 
             // Victim
             victimTexture = Content.Load<Texture2D>("victim");
             
             // Create one victim sprite to be used for all victims
             victim = new Victim(victimTexture, Scale);
+
+            victimSaveSound = Content.Load<SoundEffect>("pickup");
          
             // RNG for victim spawn
             random = new Random();
@@ -290,6 +304,9 @@ namespace TwinStick
             // draw map 
             tileMap.Draw(spriteBatch);
 
+            // Draw blood particles just over tiles
+            particleEngine.Draw(spriteBatch);
+
             // Draw score
             spriteBatch.DrawString(scoreFont, score.ToString("D8"), new Vector2(32, 0), Color.PaleGreen);
 
@@ -387,6 +404,11 @@ namespace TwinStick
             currentState = newState;
         }
 
+        //private void ChangeStateDelay(GameState newState, GameTime gameTime, float delay)
+        //{
+    
+        //}
+
         // Update function for the title screen state.
         // Displays Title until start or enter is pressed
         private void TitleScreenUpdate(GameTime gameTime)
@@ -429,7 +451,7 @@ namespace TwinStick
         
         // Update logic for NextLevelScreen
         // shows level message then changes to game state
-        public void NextLevelScreenUpdate(GameTime gameTime)
+        private void NextLevelScreenUpdate(GameTime gameTime)
         {
             // Get current message
             message = messagesList[currentMessage];
@@ -461,7 +483,7 @@ namespace TwinStick
         }
 
         // Update logic for the main game state
-        public void GameStateUpdate(GameTime gameTime)
+        private void GameStateUpdate(GameTime gameTime)
         {
             // Pause game if enter or start pressed
             if ((key.IsKeyDown(Keys.Enter) && 
@@ -485,10 +507,12 @@ namespace TwinStick
             if (victim.IsAlive && player.CollisionRect.Intersects(victim.CollisionRect))
             {
                 // Remove victim, update score, saved and victim board
+                // play sound
                 victim.IsAlive = false;
                 score += 500;
                 saved++;
                 UpdateVictimBoard(victimSave);
+                victimSaveSound.Play();
             }
 
             // Update enemy and bullet managers
@@ -497,6 +521,9 @@ namespace TwinStick
 
             // Check bullet collision with enemy
             UpdateBulletsAndCheckCollisions(gameTime);
+
+            // Update particle engine
+            particleEngine.Update(gameTime, tileMap);
 
             if (enemyManager.HadVictimCollision)
             {
@@ -546,7 +573,7 @@ namespace TwinStick
         }
 
         // update logic for the pause screen
-        public void PauseScreenUpdate()
+        private void PauseScreenUpdate()
         {
             //  Go back to game if enter or start pressed
             if ((key.IsKeyDown(Keys.Enter) &&
@@ -559,7 +586,7 @@ namespace TwinStick
         }
 
         // Update logic for the game over screen
-        public void GameOverScreenUpdate(GameTime gameTime)
+        private void GameOverScreenUpdate(GameTime gameTime)
         {
             messageTimerElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (messageTimerElapsed > 3.0f)
@@ -577,7 +604,7 @@ namespace TwinStick
 
         // Handle input from keyboard and gamepad
         // update playerDirection and shootDirection vectors
-        public void GameStateHandleInput()
+        private void GameStateHandleInput()
         {
             // Reset direction vector to stop moving
             playerDirection = Vector2.Zero;
@@ -674,7 +701,7 @@ namespace TwinStick
         }
 
         // Update all bullets and check collsion with enemies
-        public void UpdateBulletsAndCheckCollisions(GameTime gameTime)
+        private void UpdateBulletsAndCheckCollisions(GameTime gameTime)
         {
             // Update the bullets
             for (int i = 0; i < bulletManager.Bullets.Count; i++)
@@ -686,14 +713,36 @@ namespace TwinStick
                     {
                         bulletManager.Kill(i);
                         enemyManager.Kill(j);
+                        
+                        // Create particle explostion at enemy location
+                        Zombie enemy = enemyManager.Enemies[j];
+                        ExplodeZombie(gameTime, enemy.Center, bulletManager.Bullets[i].Direction);
+
+                        // Add to score
                         score += 100;
                     }
                 }
             }
         }
 
+        // Create particle explosion at zombie location 
+        // using the colliding bullets direction to create a direction range for 
+        // each the particles
+        private void ExplodeZombie(GameTime gameTime, Vector2 location, Vector2 bulletDirection)
+        {
+            int zombieParticles = 18; // number of particles to create
+            float range = .8f; // range +/- to direction
+            float time = .22f; // time before partices stop moving
+
+            // Create min, max vectors
+            // based on bullet direcction +/- range
+            Vector2 min = new Vector2(bulletDirection.X - range, bulletDirection.Y - range);
+            Vector2 max = new Vector2(bulletDirection.X + range, bulletDirection.Y + range);
+            particleEngine.CreateParticles(gameTime, location, zombieParticles, time, min, max);
+        }
+
         // Update the victim board tinting victim sprites with color
-        public void UpdateVictimBoard(Color color)
+        private void UpdateVictimBoard(Color color)
         {
             if (currentVictim < victims.Length)
             {
@@ -735,7 +784,7 @@ namespace TwinStick
 
         // Increment the level and change 
         // speed and spawn rate in enemy manager
-        public void ChangeLevel()
+        private void ChangeLevel()
         {
             currentLevel++;
             enemyManager.EnemySpawnRate -= 0.2f;
@@ -748,7 +797,7 @@ namespace TwinStick
         }
 
         // Reset the current level preserving score, lives, and victims saved
-        public void ResetLevel()
+        private void ResetLevel()
         {
             // Move player to center
             player.Position = new Vector2(playerStartX, playerStartY);
@@ -758,6 +807,7 @@ namespace TwinStick
             // Clear out all enemies and bullets
             enemyManager.Reset();
             bulletManager.Reset();
+            particleEngine.Reset();
 
             // Reset message values
             messageTimerElapsed = 0;
@@ -766,7 +816,7 @@ namespace TwinStick
 
         // Reset game values for the next level
         // Score, enemySpawnRate, and enemySpeed are preserved from previous level
-        public void ResetGameForNextLevel()
+        private void ResetGameForNextLevel()
         {
             // Move player to center
             player.Position = new Vector2(playerStartX, playerStartY);
@@ -794,10 +844,11 @@ namespace TwinStick
             // Clear out all enemies and bullets
             enemyManager.Reset();
             bulletManager.Reset();
+            particleEngine.Reset();
         }
 
         // Reset all values for game
-        public void ResetGame()
+        private void ResetGame()
         {
             // Reset everything for a new level
             ResetGameForNextLevel();

@@ -9,6 +9,10 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TwinStick
 {
+    // Zombie sprite
+    // Moves towards player or moves towards victim
+    // if victim is alive and closer than player
+    // Performs tile collision with map
     class Zombie : Sprite
     {
         float speed;

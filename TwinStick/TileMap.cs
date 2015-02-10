@@ -9,6 +9,14 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TwinStick
 {
+    // TileMap class
+    // contains array for map
+    // 0 = ground tile
+    // 1 = solid wall tile
+    // Creates array of tiles based on map
+    // Draws all tiles to the screen
+    // CheckTileCollisions(collisionRect) can get a list tiles
+    // potentially colliding with collisionRect
     class TileMap
     {
         public static int MAP_HEIGHT = 15;  // Height of map in tiles

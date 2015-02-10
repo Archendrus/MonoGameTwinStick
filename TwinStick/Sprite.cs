@@ -9,6 +9,10 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TwinStick
 {
+    // Base sprite class
+    // Has a texture position, width, and height
+    // IsAlive flag if active
+    // Multiple draw methods
     class Sprite
     {
         private Texture2D texture;
@@ -72,7 +76,7 @@ namespace TwinStick
         }
 
         // Draw sprite at position at Game1.Scale
-        public virtual void Draw(SpriteBatch spriteBatch)
+        public void Draw(SpriteBatch spriteBatch)
         {
             // Only draw if Sprite.IsAlive
             if (IsAlive)
@@ -92,7 +96,7 @@ namespace TwinStick
         }
 
         // Draw sprite at position, tint with color
-        public virtual void Draw(SpriteBatch spriteBatch, Color color)
+        public void Draw(SpriteBatch spriteBatch, Color color)
         {
             // Only draw if Sprite.IsAlive
             if (IsAlive)
@@ -111,7 +115,7 @@ namespace TwinStick
             
         }
 
-        public virtual void Draw(SpriteBatch spriteBatch, float angle, Vector2 origin)
+        public void Draw(SpriteBatch spriteBatch, float alpha)
         {
             // Only draw if Sprite.IsAlive
             if (IsAlive)
@@ -120,9 +124,9 @@ namespace TwinStick
                     texture,
                     new Vector2((int)Position.X, (int)Position.Y),
                     null,
-                    Color.White,
-                    angle,
-                    origin,
+                    Color.White * alpha,
+                    0.0f,
+                    Vector2.Zero,
                     scale,
                     SpriteEffects.None,
                     0.0f);

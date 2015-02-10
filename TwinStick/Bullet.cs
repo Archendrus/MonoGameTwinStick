@@ -8,10 +8,12 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TwinStick
 {
+    // Player bullet sprite. travels in direction set in constructor
+    // at speed.  Performs tile collision with map
     class Bullet : Sprite
     {
         private float speed = 500f;
-        private Vector2 direction;
+        public Vector2 Direction { get; private set; }
         private List<Tile> collisionTiles = new List<Tile>();
 
         // Collision rect same as bounding rect for bullet
@@ -26,7 +28,7 @@ namespace TwinStick
         // Create bullet moving in direction
         public Bullet(Texture2D texture, Vector2 direction, Vector2 scale) : base(texture, scale)
         {
-            this.direction = direction;
+            Direction = direction;
         }
 
         public void Update(GameTime time, TileMap map, Rectangle screenRect)
@@ -37,7 +39,7 @@ namespace TwinStick
                 // update position every frame
                 float elapsed = (float)time.ElapsedGameTime.TotalSeconds;
 
-                Position += direction * speed * elapsed;
+                Position += Direction * speed * elapsed;
 
                 // kill if offscreen
                 if (!screenRect.Contains(BoundingRect))

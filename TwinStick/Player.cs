@@ -10,6 +10,8 @@ using Microsoft.Xna.Framework.Input;
 
 namespace TwinStick
 {
+    // Player sprite
+    // Handles movement from input and performs tile collision with map
     class Player : Sprite
     {
         
