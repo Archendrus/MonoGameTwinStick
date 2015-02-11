@@ -666,7 +666,7 @@ namespace TwinStick
             {
                 // Get a tile to spawn victim on
                 Tile tile = tileMap.GetTile(random.Next(TileMap.MAP_WIDTH), random.Next(TileMap.MAP_HEIGHT));
-                bool tileClear = false;
+                bool tileClear = IsTileClear(tile);
                 // keep getting tiles until we find one that is not solid and clear of zombies
                 while (tile.IsSolid || tileClear == false)
                 {
@@ -674,22 +674,7 @@ namespace TwinStick
                     tile = tileMap.GetTile(random.Next(TileMap.MAP_WIDTH), random.Next(TileMap.MAP_HEIGHT));
                     if (!tile.IsSolid)
                     {
-                        // if not solid, check if any zombies are colliding with this tile
-                        tileClear = true;
-                        foreach (Zombie zombie in enemyManager.Enemies)
-                        {
-                            // get all tiles zombie is currently intersecting
-                            List<Tile> collisionTiles = tileMap.CheckTileCollsions(zombie.CollisionRect);
-                        
-                            foreach (Tile collisionTile in collisionTiles)
-                            {
-                                // check if any zombie collision tiles are the same as the tile we've chosen
-                                if (collisionTile.Position == tile.Position)
-                                {
-                                    tileClear = false;
-                                }
-                            }
-                        }
+                        tileClear = IsTileClear(tile);
                     }    
                 }
 
@@ -698,6 +683,28 @@ namespace TwinStick
                 victim.Position = new Vector2(tile.Position.X, tile.Position.Y);
                 victim.IsAlive = true;
             }
+        }
+
+        private bool IsTileClear(Tile tile)
+        {
+            // if not solid, check if any zombies are colliding with this tile
+            bool tileClear = true;
+            foreach (Zombie zombie in enemyManager.Enemies)
+            {
+                // get all tiles zombie is currently intersecting
+                List<Tile> collisionTiles = tileMap.CheckTileCollsions(zombie.CollisionRect);
+
+                foreach (Tile collisionTile in collisionTiles)
+                {
+                    // check if any zombie collision tiles are the same as the tile we've chosen
+                    if (collisionTile.Position == tile.Position)
+                    {
+                        tileClear = false;
+                    }
+                }
+            }
+
+            return tileClear;
         }
 
         // Update all bullets and check collsion with enemies

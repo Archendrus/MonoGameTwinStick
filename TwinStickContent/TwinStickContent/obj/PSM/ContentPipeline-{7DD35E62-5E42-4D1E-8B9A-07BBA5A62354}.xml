@@ -74,15 +74,6 @@
       <Time>2015-02-09T13:32:10.7122399-05:00</Time>
     </Item>
     <Item>
-      <Source>shoot.wav</Source>
-      <Name>shoot</Name>
-      <Importer>WavImporter</Importer>
-      <Processor>SoundEffectProcessor</Processor>
-      <Options>None</Options>
-      <Output>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\shoot.xnb</Output>
-      <Time>2015-02-09T18:52:00.0296322-05:00</Time>
-    </Item>
-    <Item>
       <Source>explode.wav</Source>
       <Name>explode</Name>
       <Importer>WavImporter</Importer>
@@ -99,6 +90,15 @@
       <Options>None</Options>
       <Output>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\pickup.xnb</Output>
       <Time>2015-02-09T19:14:24.6885423-05:00</Time>
+    </Item>
+    <Item>
+      <Source>shoot.wav</Source>
+      <Name>shoot</Name>
+      <Importer>WavImporter</Importer>
+      <Processor>SoundEffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\shoot.xnb</Output>
+      <Time>2015-02-10T20:06:37.647659-05:00</Time>
     </Item>
     <BuildSuccessful>true</BuildSuccessful>
     <Settings>

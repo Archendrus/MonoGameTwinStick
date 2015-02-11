@@ -104,13 +104,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="shoot.wav">
-      <Name>shoot</Name>
-      <Importer>WavImporter</Importer>
-      <Processor>SoundEffectProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="explode.wav">
       <Name>explode</Name>
       <Importer>WavImporter</Importer>
@@ -120,6 +113,13 @@
   <ItemGroup>
     <Compile Include="pickup.wav">
       <Name>pickup</Name>
+      <Importer>WavImporter</Importer>
+      <Processor>SoundEffectProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="shoot.wav">
+      <Name>shoot</Name>
       <Importer>WavImporter</Importer>
       <Processor>SoundEffectProcessor</Processor>
     </Compile>
