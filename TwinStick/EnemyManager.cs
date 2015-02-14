@@ -18,6 +18,16 @@ namespace TwinStick
         public List<Zombie> Enemies { get; private set; }  // List of enemies
         private float _enemySpawnRate;  // backing field for EnemySpawnRate
         private float _enemySpeed;  // backing field for EnemySpeed
+        private Texture2D zombieTexture;  // Texture to use for enemies
+        private List<Vector2> spawnPoints;  // list of spawn points
+        private float enemySpawnElapsed;  // accumulates time since last enemy spawn        
+        private Vector2 scale;
+        private ParticleEngine particleEngine;
+        private SoundEffect explodeSound;
+
+        // flag if victim collision occured during last update 
+        public bool HadVictimCollision { get; private set; }
+        public bool HadPlayerCollision { get; private set; }
 
         // Rate at which enemies spawn
         public float EnemySpawnRate 
@@ -57,19 +67,7 @@ namespace TwinStick
             }
         }
 
-        private Texture2D zombieTexture;  // Texture to use for enemies
-        private List<Vector2> spawnPoints;  // list of spawn points
-        private float enemySpawnElapsed;  // accumulates time since last enemy spawn
-        
-        private Vector2 scale;
-
-        private SoundEffect explodeSound;
-
-        // flag if victim collision occured during last update 
-        public bool HadVictimCollision { get; private set; }
-        public bool HadPlayerCollision { get; private set; }
-
-        public EnemyManager(Texture2D zombieTexture, Rectangle screenRect, Vector2 scale, SoundEffect sound)
+        public EnemyManager(Texture2D zombieTexture, Rectangle screenRect, Vector2 scale, SoundEffect sound, ParticleEngine particleEngine)
         {
             Enemies = new List<Zombie>();
             this.zombieTexture = zombieTexture;
@@ -78,6 +76,7 @@ namespace TwinStick
             EnemySpeed = 20f;
             this.scale = scale;
             explodeSound = sound;
+            this.particleEngine = particleEngine;
             InitSpawnPoints(screenRect);
         }
 
@@ -104,7 +103,7 @@ namespace TwinStick
                 }
 
                 // Check enemy collision with player
-                if (Enemies[i].HitBox.Intersects(player.HitBox))
+                if (player.IsAlive && Enemies[i].HitBox.Intersects(player.HitBox))
                 {
                     HadPlayerCollision = true;
                 }
@@ -186,11 +185,41 @@ namespace TwinStick
         }
 
         // Set enemy at index IsAlive flag to false
-        // and play sound effect
-        public void Kill(int index)
+        // and play sound effect, create particles
+        public void Kill(int index, GameTime gameTime, Vector2 bulletDirection)
         {
             Enemies[index].IsAlive = false;
+            ExplodeEnemy(gameTime, Enemies[index].Center, bulletDirection);
             explodeSound.Play();
+        }
+
+        // Create particle explosion at zombie location 
+        // using the colliding bullets direction to create a direction range for 
+        // each the particles
+        private void ExplodeEnemy(GameTime gameTime, Vector2 location, Vector2 bulletDirection)
+        {
+            int zombieParticles = 30; // number of particles to create 18
+            float range = .6f; // range +/- to direction
+            float time = .28f; // time before partices stop moving .32f
+
+            // Create min, max vectors
+            // based on bullet direcction +/- range
+            Vector2 directionMin = new Vector2(bulletDirection.X - range, bulletDirection.Y - range);
+            Vector2 directionMax = new Vector2(bulletDirection.X + range, bulletDirection.Y + range);
+
+            // init min, max particle speed
+            int speedMin = 150;
+            int speedMax = 300;
+
+            particleEngine.CreateParticles(
+                gameTime,
+                location,
+                zombieParticles,
+                time,
+                directionMin,
+                directionMax,
+                speedMin,
+                speedMax);
         }
 
         // Remove all inactive sprites from bullets and enemies
@@ -205,7 +234,6 @@ namespace TwinStick
                 }
             }
         }
-
 
         // Clear enemy list
         public void Reset()

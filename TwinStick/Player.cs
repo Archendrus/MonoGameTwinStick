@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
 
 namespace TwinStick
 {
@@ -31,8 +32,8 @@ namespace TwinStick
             }   
         }
 
-       // Rectangle for collision with enemies
-       public Rectangle HitBox
+        // Rectangle for collision with enemies
+        public Rectangle HitBox
         {
             get
             {
@@ -43,21 +44,28 @@ namespace TwinStick
                     (10 * (int)scale.Y));
             }
         }
+
+        SoundEffect dieSound;
+        SoundEffectInstance soundEffectInstance;
+        ParticleEngine particleEngine;
         
-        // 6px in, 4 width, 3 down, 10 height
-        public Player(Texture2D texture, Vector2 position, Vector2 scale) 
+        public Player(Texture2D texture, Vector2 position, Vector2 scale, SoundEffect dieSound, ParticleEngine particleEngine) 
             : base(texture, position, scale)
         {
 
             Direction = new Vector2(0, 0);
             speed = 175f;
+            this.dieSound = dieSound;
+            this.particleEngine = particleEngine;
         }
 
-        public Player(Texture2D texture, Vector2 scale)
+        public Player(Texture2D texture, Vector2 scale, SoundEffect dieSound, ParticleEngine particleEngine)
             : base(texture, scale)
         {
             Direction = new Vector2(0, 0);
             speed = 175f;
+            this.dieSound = dieSound;
+            this.particleEngine = particleEngine;
         }
 
         public void Update(GameTime time, TileMap map, Vector2 direction, Rectangle screenRect)
@@ -125,6 +133,38 @@ namespace TwinStick
                     Position += depth;
                 }
             }
+        }
+
+        // Kill player
+        // Set IsAlive to false
+        // play die sound as SoundEffectInstance, create particles
+        public void Kill(GameTime gameTime)
+        {
+            IsAlive = false;  
+            soundEffectInstance = dieSound.CreateInstance();
+            soundEffectInstance.Play();
+            particleEngine.ExplodeSprite(gameTime, Center);
+             
+        }
+
+        // Returns true if dieSound SoundEffectInstance 
+        // is not null and done playing
+        public bool Dead()
+        {
+            bool dead = false;
+            
+            if (soundEffectInstance != null)
+            {
+                // If sound done playing set dead to true and null out
+                // soundEffectInstance
+                if (soundEffectInstance.State == SoundState.Stopped)
+                {
+                    dead = true;
+                    soundEffectInstance = null;
+                }
+            }
+
+            return dead;
         }
     }
 }

@@ -74,15 +74,6 @@
       <Time>2015-02-09T13:32:10.7122399-05:00</Time>
     </Item>
     <Item>
-      <Source>explode.wav</Source>
-      <Name>explode</Name>
-      <Importer>WavImporter</Importer>
-      <Processor>SoundEffectProcessor</Processor>
-      <Options>None</Options>
-      <Output>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\explode.xnb</Output>
-      <Time>2015-02-09T19:10:04.2876482-05:00</Time>
-    </Item>
-    <Item>
       <Source>pickup.wav</Source>
       <Name>pickup</Name>
       <Importer>WavImporter</Importer>
@@ -99,6 +90,33 @@
       <Options>None</Options>
       <Output>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\shoot.xnb</Output>
       <Time>2015-02-10T20:06:37.647659-05:00</Time>
+    </Item>
+    <Item>
+      <Source>explode.wav</Source>
+      <Name>explode</Name>
+      <Importer>WavImporter</Importer>
+      <Processor>SoundEffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\explode.xnb</Output>
+      <Time>2015-02-14T14:22:58.4412622-05:00</Time>
+    </Item>
+    <Item>
+      <Source>die.wav</Source>
+      <Name>die</Name>
+      <Importer>WavImporter</Importer>
+      <Processor>SoundEffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\die.xnb</Output>
+      <Time>2015-02-14T15:07:16.1092721-05:00</Time>
+    </Item>
+    <Item>
+      <Source>pause.wav</Source>
+      <Name>pause</Name>
+      <Importer>WavImporter</Importer>
+      <Processor>SoundEffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\PSM\Content\pause.xnb</Output>
+      <Time>2015-02-14T17:11:22.2231654-05:00</Time>
     </Item>
     <BuildSuccessful>true</BuildSuccessful>
     <Settings>

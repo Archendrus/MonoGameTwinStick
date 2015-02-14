@@ -18,7 +18,6 @@ namespace TwinStick
         public float Alpha { get; private set; } 
         private float timeToFade = 2.0f;  // Time before particle begins fading
         private float fadeRate = .02f;
-        //private List<Tile> collisionTiles = new List<Tile>();
 
         public Particle(Texture2D texture, Vector2 position, Vector2 velocity, float timeToMove, Vector2 scale)
             : base(texture, position, scale)

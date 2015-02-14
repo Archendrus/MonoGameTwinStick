@@ -16,13 +16,9 @@ namespace TwinStick
     {
         public static int Width { get; private set; }
         public static int Height { get; private set; }
-
-        // Source rectangle from tile sheet
-        public Rectangle SourceRectangle { get; private set; }
-
+        public Rectangle SourceRectangle { get; private set; } // Source rectangle from tile sheet
         public Vector2 Position { get; private set; }
         public bool IsSolid { get; private set; }
-
         Vector2 scale;
 
         // Rectangle set at size of texture

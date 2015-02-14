@@ -57,8 +57,7 @@ namespace TwinStick
             Height = texture.Height * (int)scale.Y;
             Width = texture.Width * (int)scale.X;
 
-            IsAlive = true;
-            
+            IsAlive = true;          
         }
 
         // Create sprite with texture
@@ -115,6 +114,7 @@ namespace TwinStick
             
         }
 
+        // Draw sprite at position with alpha
         public void Draw(SpriteBatch spriteBatch, float alpha)
         {
             // Only draw if Sprite.IsAlive

@@ -17,7 +17,6 @@ namespace TwinStick
         Texture2D bulletTexture;  // texture to use for bullets
         float shotTimerElapsed;  // accumulates time since last shot
         SoundEffect shotSound;
-
         Vector2 scale;
 
         public BulletManager(Texture2D bulletTexture, Vector2 scale, SoundEffect sound)
@@ -52,7 +51,6 @@ namespace TwinStick
                 Bullets[i].Draw(spriteBatch);
             }     
         }
-
 
         // Create bullets at player.Position, moving in shootDirection at fireRate
         public void CreateBullets(GameTime gameTime, Player player, Vector2 shootDirection)
