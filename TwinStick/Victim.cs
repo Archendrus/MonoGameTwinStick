@@ -26,6 +26,19 @@ namespace TwinStick
             }
         }
 
+        // Rectangle for collision with enemies
+        public Rectangle HitBox
+        {
+            get
+            {
+                return new Rectangle(
+                    (int)Position.X + (4 * (int)scale.X),
+                    (int)Position.Y + (3 * (int)scale.Y),
+                    (8 * (int)scale.X),
+                    (10 * (int)scale.Y));
+            }
+        }
+
         // Create victim with texture, at position, at using scale
         public Victim(Texture2D texture, Vector2 position, Vector2 scale)
             : base(texture, position, scale)

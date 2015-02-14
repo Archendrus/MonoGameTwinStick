@@ -57,9 +57,7 @@ namespace TwinStick
             if (Alpha < 0.0f)
             {
                 IsAlive = false;
-            }
-
-            
+            }         
         }
 
         // Resolve tile collsions on both axis at once

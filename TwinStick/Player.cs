@@ -37,10 +37,10 @@ namespace TwinStick
             get
             {
                 return new Rectangle(
-                    (int)Position.X + (5 * (int)scale.X),
-                    (int)Position.Y + (1 * (int)scale.Y),
-                    (5 * (int)scale.X),
-                    (14 * (int)scale.Y));
+                    (int)Position.X + (4 * (int)scale.X),
+                    (int)Position.Y + (3 * (int)scale.Y),
+                    (8 * (int)scale.X),
+                    (10 * (int)scale.Y));
             }
         }
         

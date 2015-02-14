@@ -738,9 +738,9 @@ namespace TwinStick
         // each the particles
         private void ExplodeZombie(GameTime gameTime, Vector2 location, Vector2 bulletDirection)
         {
-            int zombieParticles = 25; // number of particles to create 18
+            int zombieParticles = 30; // number of particles to create 18
             float range = .6f; // range +/- to direction
-            float time = .32f; // time before partices stop moving .22f
+            float time = .28f; // time before partices stop moving .32f
 
             // Create min, max vectors
             // based on bullet direcction +/- range
@@ -748,8 +748,8 @@ namespace TwinStick
             Vector2 directionMax = new Vector2(bulletDirection.X + range, bulletDirection.Y + range);
 
             // init min, max particle speed
-            int speedMin = 100;
-            int speedMax = 250;
+            int speedMin = 150;
+            int speedMax = 300;
 
             particleEngine.CreateParticles(
                 gameTime,

@@ -16,7 +16,6 @@ namespace TwinStick
         public Vector2 EmitterLocation { get; set; }
         private List<Particle> particles;
         private Texture2D texture;
-        private float speed = 150f;  // speed at which particles move
         private Vector2 scale;
 
         public ParticleEngine(Texture2D texture, Vector2 location, Vector2 scale)
@@ -50,7 +49,8 @@ namespace TwinStick
             // Choose random direction vector between min and max
             Vector2 direction = new Vector2(directionMin.X + (float)(random.NextDouble() * (directionMax.X - directionMin.X)),
                                             directionMin.Y + (float)(random.NextDouble() * (directionMax.Y - directionMin.Y)));
-            
+
+            direction.Normalize();
             // choose random speed between speedMin, speedMax
             float particleSpeed = (float)random.Next(speedMin, speedMax);
 
