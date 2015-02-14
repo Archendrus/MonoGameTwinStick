@@ -37,6 +37,8 @@ namespace TwinStick
             if (TimeToMove > 0.0f)
             {
                 Position += Velocity * elapsed;
+                // Resolve particle collision with nearby tiles
+                ResolveTileCollisions(map);
             }
             else  // Particle landed
             {
@@ -57,8 +59,7 @@ namespace TwinStick
                 IsAlive = false;
             }
 
-            // Resolve particle collision with nearby tiles
-            ResolveTileCollisions(map);
+            
         }
 
         // Resolve tile collsions on both axis at once
@@ -91,6 +92,16 @@ namespace TwinStick
                             Position = new Vector2(Position.X + depth.X, Position.Y);
                         }
                     }
+                }
+            }
+
+            // If any particles pass through solid tiles, remove them
+            collisionTiles = map.CheckTileCollsions(BoundingRect);
+            foreach (Tile tile in collisionTiles)
+            {
+                if (tile.IsSolid)
+                {
+                    IsAlive = false;
                 }
             }
         }

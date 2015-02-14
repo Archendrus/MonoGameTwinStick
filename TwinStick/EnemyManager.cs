@@ -38,7 +38,6 @@ namespace TwinStick
             } 
         }
 
-
         // Enemy movement speed
         public float EnemySpeed 
         { 

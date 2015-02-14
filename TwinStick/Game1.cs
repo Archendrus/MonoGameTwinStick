@@ -373,11 +373,11 @@ namespace TwinStick
                 {
                     // Set values for lives sprite
                     livesSprite.Position = new Vector2(348, (screenRectangle.Height / 2) - (livesSprite.Height + 50));
-                    livesSprite.IsAlive = true;
+                    //livesSprite.IsAlive = true;
 
                     // Add messages
-                    messagesList.Add("   X " + lives);
                     messagesList.Add("LEVEL " + currentLevel);
+                    messagesList.Add("   X " + lives);                  
                     break;
                 }
                 // Enter Game state
@@ -467,7 +467,7 @@ namespace TwinStick
                 // Remove lives sprite if not displaying lives
                 if (currentMessage > 0)
                 {
-                    livesSprite.IsAlive = false;
+                    livesSprite.IsAlive = true;
                 }
 
                 // all messages shown, set message to String.Empty to stop drawing
@@ -477,6 +477,7 @@ namespace TwinStick
                     message = String.Empty;
                     messagesList.Clear();
                     player.IsAlive = true;
+                    livesSprite.IsAlive = false;
                     ChangeState(GameState.Game);
                 }
             }
@@ -748,7 +749,7 @@ namespace TwinStick
 
             // init min, max particle speed
             int speedMin = 100;
-            int speedMax = 200;
+            int speedMax = 250;
 
             particleEngine.CreateParticles(
                 gameTime,
