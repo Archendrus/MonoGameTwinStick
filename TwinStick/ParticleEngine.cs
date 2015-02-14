@@ -45,11 +45,17 @@ namespace TwinStick
         // Generate a single particle with a random direction vector between
         // min and max vectors
         // and add it to particles list
-        private Particle GenerateNewParticle(float time, Vector2 min, Vector2 max)
+        private Particle GenerateNewParticle(float time, Vector2 directionMin, Vector2 directionMax, int speedMin, int speedMax)
         {
-            Vector2 direction = new Vector2(min.X + (float)(random.NextDouble() * (max.X - min.X)),
-                                            min.Y + (float)(random.NextDouble() * (max.Y - min.Y)));
-            Vector2 velocity = direction * speed;
+            // Choose random direction vector between min and max
+            Vector2 direction = new Vector2(directionMin.X + (float)(random.NextDouble() * (directionMax.X - directionMin.X)),
+                                            directionMin.Y + (float)(random.NextDouble() * (directionMax.Y - directionMin.Y)));
+            
+            // choose random speed between speedMin, speedMax
+            float particleSpeed = (float)random.Next(speedMin, speedMax);
+
+            // set velocity and return new particle
+            Vector2 velocity = direction * particleSpeed;
             return new Particle(texture,EmitterLocation, velocity, time, scale);
         }
 
@@ -65,12 +71,20 @@ namespace TwinStick
         }
 
         // create numParticles at ParticleEmitters current location
-        public void CreateParticles(GameTime gameTime, Vector2 location, int numParticles, float time, Vector2 min, Vector2 max)
+        public void CreateParticles(
+            GameTime gameTime,
+            Vector2 location,
+            int numParticles,
+            float time,
+            Vector2 directionMin,
+            Vector2 directionMax,
+            int speedMin,
+            int speedMax)
         {
             EmitterLocation = location;
             for (int i = 0; i < numParticles; i++)
             {               
-                particles.Add(GenerateNewParticle(time, min, max));              
+                particles.Add(GenerateNewParticle(time, directionMin, directionMax, speedMin, speedMax));              
             }    
         }
 

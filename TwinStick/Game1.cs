@@ -737,15 +737,28 @@ namespace TwinStick
         // each the particles
         private void ExplodeZombie(GameTime gameTime, Vector2 location, Vector2 bulletDirection)
         {
-            int zombieParticles = 18; // number of particles to create
-            float range = .8f; // range +/- to direction
-            float time = .22f; // time before partices stop moving
+            int zombieParticles = 25; // number of particles to create 18
+            float range = .6f; // range +/- to direction
+            float time = .32f; // time before partices stop moving .22f
 
             // Create min, max vectors
             // based on bullet direcction +/- range
-            Vector2 min = new Vector2(bulletDirection.X - range, bulletDirection.Y - range);
-            Vector2 max = new Vector2(bulletDirection.X + range, bulletDirection.Y + range);
-            particleEngine.CreateParticles(gameTime, location, zombieParticles, time, min, max);
+            Vector2 directionMin = new Vector2(bulletDirection.X - range, bulletDirection.Y - range);
+            Vector2 directionMax = new Vector2(bulletDirection.X + range, bulletDirection.Y + range);
+
+            // init min, max particle speed
+            int speedMin = 100;
+            int speedMax = 200;
+
+            particleEngine.CreateParticles(
+                gameTime,
+                location,
+                zombieParticles,
+                time,
+                directionMin,
+                directionMax,
+                speedMin,
+                speedMax);
         }
 
         // Update the victim board tinting victim sprites with color
