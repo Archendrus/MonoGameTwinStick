@@ -47,8 +47,9 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TwinStickContentContent\TwinStickContentContent.contentproj">
-      <Name>TwinStickContentContent</Name>
+      <Name>TwinStickContentContent %28Content%29</Name>
       <XnaReferenceType>Content</XnaReferenceType>
+      <Project>{7DD35E62-5E42-4D1E-8B9A-07BBA5A62354}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

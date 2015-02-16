@@ -5,64 +5,118 @@
       <Source>tiles.png</Source>
       <Name>tiles</Name>
       <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
+      <Processor>MGTextureProcessor</Processor>
       <Options>None</Options>
-      <Output>C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\tiles.xnb</Output>
-      <Time>2015-01-13T14:44:16.5984342-05:00</Time>
+      <Output>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\tiles.xnb</Output>
+      <Time>2014-12-28T19:59:38-05:00</Time>
     </Item>
     <Item>
       <Source>hero.png</Source>
       <Name>hero</Name>
       <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
+      <Processor>MGTextureProcessor</Processor>
       <Options>None</Options>
-      <Output>C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\hero.xnb</Output>
-      <Time>2015-01-13T14:44:16.5894333-05:00</Time>
+      <Output>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\hero.xnb</Output>
+      <Time>2014-12-28T20:36:42-05:00</Time>
     </Item>
     <Item>
       <Source>zombie.png</Source>
       <Name>zombie</Name>
       <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
+      <Processor>MGTextureProcessor</Processor>
       <Options>None</Options>
-      <Output>C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\zombie.xnb</Output>
-      <Time>2015-01-13T14:44:16.6014345-05:00</Time>
+      <Output>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\zombie.xnb</Output>
+      <Time>2014-12-30T21:27:42-05:00</Time>
     </Item>
     <Item>
       <Source>bullet.png</Source>
       <Name>bullet</Name>
       <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
+      <Processor>MGTextureProcessor</Processor>
       <Options>None</Options>
-      <Output>C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\bullet.xnb</Output>
-      <Time>2015-01-20T11:26:03.8953352-05:00</Time>
+      <Output>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\bullet.xnb</Output>
+      <Time>2015-01-17T14:46:19.3721134-05:00</Time>
     </Item>
     <Item>
       <Source>victim.png</Source>
       <Name>victim</Name>
       <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
+      <Processor>MGTextureProcessor</Processor>
       <Options>None</Options>
-      <Output>C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\victim.xnb</Output>
-      <Time>2015-01-29T13:37:38.8629859-05:00</Time>
+      <Output>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\victim.xnb</Output>
+      <Time>2015-01-24T12:50:26.7357537-05:00</Time>
     </Item>
     <Item>
       <Source>font.bmp</Source>
       <Name>font</Name>
       <Importer>TextureImporter</Importer>
-      <Processor>FontTextureProcessor</Processor>
+      <Processor>MGTextureProcessor</Processor>
       <Options>None</Options>
-      <Output>C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\font.xnb</Output>
-      <Time>2015-01-29T13:37:38.7319728-05:00</Time>
+      <Output>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\font.xnb</Output>
+      <Time>2015-01-24T15:50:14.4626311-05:00</Time>
     </Item>
     <Item>
       <Source>textFont.bmp</Source>
       <Name>textFont</Name>
       <Importer>TextureImporter</Importer>
-      <Processor>FontTextureProcessor</Processor>
+      <Processor>MGSpriteFontTextureProcessor</Processor>
       <Options>None</Options>
-      <Output>C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\textFont.xnb</Output>
-      <Time>2015-01-29T13:37:38.8589855-05:00</Time>
+      <Output>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\textFont.xnb</Output>
+      <Time>2015-01-27T14:26:15.6681861-05:00</Time>
+    </Item>
+    <Item>
+      <Source>particle.png</Source>
+      <Name>particle</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>MGTextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\particle.xnb</Output>
+      <Time>2015-02-09T13:32:10.7122399-05:00</Time>
+    </Item>
+    <Item>
+      <Source>pickup.wav</Source>
+      <Name>pickup</Name>
+      <Importer>WavImporter</Importer>
+      <Processor>MGSoundEffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\pickup.xnb</Output>
+      <Time>2015-02-09T19:14:24.6885423-05:00</Time>
+    </Item>
+    <Item>
+      <Source>shoot.wav</Source>
+      <Name>shoot</Name>
+      <Importer>WavImporter</Importer>
+      <Processor>MGSoundEffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\shoot.xnb</Output>
+      <Time>2015-02-10T20:06:37.647659-05:00</Time>
+    </Item>
+    <Item>
+      <Source>explode.wav</Source>
+      <Name>explode</Name>
+      <Importer>WavImporter</Importer>
+      <Processor>MGSoundEffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\explode.xnb</Output>
+      <Time>2015-02-14T14:22:58.4412622-05:00</Time>
+    </Item>
+    <Item>
+      <Source>die.wav</Source>
+      <Name>die</Name>
+      <Importer>WavImporter</Importer>
+      <Processor>MGSoundEffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\die.xnb</Output>
+      <Time>2015-02-14T15:07:16.1092721-05:00</Time>
+    </Item>
+    <Item>
+      <Source>pause.wav</Source>
+      <Name>pause</Name>
+      <Importer>WavImporter</Importer>
+      <Processor>MGSoundEffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\pause.xnb</Output>
+      <Time>2015-02-14T17:11:22.2231654-05:00</Time>
     </Item>
     <BuildSuccessful>true</BuildSuccessful>
     <Settings>
@@ -71,15 +125,15 @@
       <TargetProfile>HiDef</TargetProfile>
       <BuildConfiguration>Windows</BuildConfiguration>
       <CompressContent>false</CompressContent>
-      <RootDirectory>C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContentContent\</RootDirectory>
-      <LoggerRootDirectory>C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\</LoggerRootDirectory>
-      <IntermediateDirectory>C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\obj\Windows\</IntermediateDirectory>
-      <OutputDirectory>C:\Users\wtaplin\Documents\DEV\MonoGameTwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\</OutputDirectory>
+      <RootDirectory>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContentContent\</RootDirectory>
+      <LoggerRootDirectory>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\</LoggerRootDirectory>
+      <IntermediateDirectory>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\obj\Windows\</IntermediateDirectory>
+      <OutputDirectory>C:\Users\Owner\Documents\GameDev\Games\TwinStick\TwinStickContent\TwinStickContent\bin\Windows\Content\</OutputDirectory>
     </Settings>
     <Assemblies>
       <Assembly>
         <Key>C:\Program Files (x86)\MSBuild\MonoGame\v3.0\MonoGameContentProcessors.dll</Key>
-        <Value>2014-08-25T19:25:46-04:00</Value>
+        <Value>2015-02-06T15:15:50-05:00</Value>
       </Assembly>
       <Assembly>
         <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.XImporter.dll</Key>
@@ -107,7 +161,7 @@
       </Assembly>
       <Assembly>
         <Key>C:\Windows\Microsoft.Net\assembly\GAC_32\Microsoft.Xna.Framework.Content.Pipeline\v4.0_4.0.0.0__842cf8be1de50553\Microsoft.Xna.Framework.Content.Pipeline.dll</Key>
-        <Value>2014-08-07T14:47:41.893849-04:00</Value>
+        <Value>2014-08-06T23:21:52.0381797-04:00</Value>
       </Assembly>
     </Assemblies>
   </Asset>

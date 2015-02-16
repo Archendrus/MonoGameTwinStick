@@ -95,7 +95,6 @@ namespace TwinStick
             : base()
         {
             graphics = new GraphicsDeviceManager(this);
-
             graphics.PreferredBackBufferWidth = 800;
             graphics.PreferredBackBufferHeight = 480;
 
@@ -106,6 +105,7 @@ namespace TwinStick
             IsFixedTimeStep = false;
            
             Content.RootDirectory = "Content";
+            this.Window.Title = "Zombies 2600";
         }
    
         /// <summary>
